@@ -151,7 +151,7 @@ export default function App() {
       <nav className="w-64 bg-slate-800 text-white flex flex-col shadow-xl z-10 shrink-0 h-full">
         <div className="p-6 border-b border-slate-700">
           <h1 className="text-3xl font-bold tracking-wider">AGRICURA</h1>
-          <p className="text-slate-400 text-sm mt-1 font-medium">Panel de Administración</p>
+          <p className="text-slate-400 text-sm mt-1 font-medium">Panel Administración</p>
         </div>
         <div className="flex-1 px-4 space-y-2 mt-6 overflow-y-auto">
           <button 
@@ -159,7 +159,7 @@ export default function App() {
             className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 ${currentView === 'dashboard' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-300 hover:bg-slate-700 hover:text-white'}`}
           >
             <LayoutDashboard size={20} />
-            <span className="font-medium">Panel de Control</span>
+            <span className="font-medium">Panel Control</span>
           </button>
           <button 
             onClick={() => { setCurrentView('form'); setInvoiceToEdit(null); }}
