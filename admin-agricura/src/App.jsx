@@ -159,7 +159,7 @@ export default function App() {
             className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 ${currentView === 'dashboard' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-300 hover:bg-slate-700 hover:text-white'}`}
           >
             <LayoutDashboard size={20} />
-            <span className="font-medium">Panel Control</span>
+            <span className="font-medium">Panel de Control</span>
           </button>
           <button 
             onClick={() => { setCurrentView('form'); setInvoiceToEdit(null); }}
