@@ -1,0 +1,902 @@
+/* style.css */
+
+/* --- Base & Reset --- */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth; /* Smooth scrolling for anchor links */
+    font-size: 16px; /* Base font size */
+    overflow-x: hidden; /* Prevent horizontal scroll on the page */
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    line-height: 1.6;
+    color: var(--text-dark);
+    background-color: var(--bg-light);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    padding-top: var(--header-height); /* Added to prevent content overlap by fixed header */
+    overflow-x: hidden; /* ADDED: Prevent horizontal scroll on the body */
+}
+
+/* --- Color Palette (CSS Variables) --- */
+:root {
+    --primary-color: #7E1222; /* Rich Burgundy Red */
+    --secondary-color: #0D272F; /* Deep Blue-Green */
+    --accent-color: #E0C56E; /* Soft Gold */
+    
+    --primary-color-dark: #620f1b;
+    --secondary-color-dark: #081a20;
+    --accent-color-dark: #c8a954;
+
+    --bg-light: #F8F9FA; /* Very Light Gray */
+    --bg-dark: #121212; /* Dark Gray for footers or dark sections */
+    
+    --text-light: #EAEAEA; /* For text on dark backgrounds */
+    --text-dark: #333333; /* For text on light backgrounds */
+    --text-muted: #6C757D; /* For secondary text */
+
+    --border-color: #CED4DA; /* Light Gray for borders */
+    --shadow-color: rgba(0, 0, 0, 0.1); /* Subtle shadow color */
+
+    --font-heading: 'Poppins', sans-serif;
+    --font-body: 'Roboto', sans-serif;
+
+    --container-max-width: 1200px;
+    --container-padding: 1.5rem; /* 24px */
+    --header-height: 70px; /* Adjusted header height */
+}
+
+/* --- Typography --- */
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--primary-color); /* Default heading color */
+    margin-bottom: 1rem; /* Default margin for headings */
+}
+
+h1 { font-size: 2.8rem; } /* ~44.8px */
+h2 { font-size: 2.2rem; } /* ~35.2px */
+h3 { font-size: 1.6rem; } /* ~25.6px */
+
+p {
+    margin-bottom: 1rem;
+    font-size: 1rem; /* 16px */
+}
+
+.lead-text {
+    font-size: 1.15rem; /* ~18.4px */
+    color: var(--text-muted);
+}
+
+a {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+a:hover, a:focus {
+    color: var(--secondary-color);
+    text-decoration: underline;
+}
+
+.link-primary {
+    color: var(--primary-color);
+    font-weight: 500;
+}
+.link-primary:hover, .link-primary:focus {
+    color: var(--secondary-color);
+}
+
+
+/* --- Layout & Container --- */
+.container {
+    width: 90%;
+    max-width: var(--container-max-width);
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: var(--container-padding);
+    padding-right: var(--container-padding);
+}
+
+.section-padding {
+    padding-top: 4rem; /* 64px */
+    padding-bottom: 4rem; /* 64px */
+}
+
+.section-title {
+    text-align: center;
+    margin-bottom: 3rem; /* 48px */
+    position: relative;
+    padding-bottom: 1rem; /* Space for the underline */
+}
+
+.section-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 4px;
+    background-color: var(--accent-color);
+    border-radius: 2px;
+}
+
+.grid-2-cols {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem; /* 32px */
+}
+
+.grid-3-cols { /* This class is still used for galleries on other pages */
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem; /* 32px */
+}
+
+@media (min-width: 768px) { /* md breakpoint */
+    .grid-2-cols {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .grid-3-cols { /* For galleries */
+        grid-template-columns: repeat(3, 1fr);
+    }
+    .gap-responsive {
+        gap: 2.5rem; /* 40px */
+    }
+}
+/*
+   Note: The specific rule for #products .grid-3-cols to be 2 columns on tablet
+   and 3 columns on desktop is removed as the #products section no longer uses .grid-3-cols directly
+   for its main card layout. The new .product-row-* classes handle this.
+*/
+
+
+.items-center {
+    align-items: center;
+}
+.items-stretch {
+    align-items: stretch;
+}
+
+.text-center { text-align: center; }
+.mb-4 { margin-bottom: 1rem; } 
+.mb-6 { margin-bottom: 1.5rem; } 
+.mb-8 { margin-bottom: 2rem; } 
+.mb-12 { margin-bottom: 3rem; } 
+.mt-8 { margin-top: 2rem; } 
+
+
+/* --- Header & Navigation --- */
+.main-header {
+    background-color: #fff;
+    box-shadow: 0 2px 10px var(--shadow-color);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    height: var(--header-height);
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.nav-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.logo {
+    height: 45px;
+    width: auto;
+    display: block;
+}
+.logo-placeholder {
+    padding: 0.5rem;
+    border: 1px dashed var(--primary-color);
+}
+
+
+.nav-links {
+    display: none; 
+    align-items: center;
+}
+
+.nav-links a {
+    color: var(--text-dark);
+    padding: 0.5rem 1rem;
+    margin-left: 0.5rem;
+    font-weight: 500;
+    border-radius: 4px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    white-space: nowrap; /* Prevents nav items from wrapping */
+}
+
+.nav-links a:hover,
+.nav-links a:focus,
+.nav-links a.active {
+    background-color: var(--primary-color);
+    color: #fff;
+    text-decoration: none;
+}
+
+.lang-switcher {
+    display: flex;
+    margin-left: 1rem;
+}
+
+.lang-btn {
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    padding: 0.3rem 0.6rem;
+    margin-left: 0.3rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.lang-btn.active-lang {
+    background-color: var(--primary-color);
+    color: #fff;
+    border-color: var(--primary-color);
+}
+.lang-btn:not(.active-lang):hover {
+    background-color: var(--bg-light);
+    color: var(--primary-color);
+}
+
+
+.hamburger-icon {
+    display: block; 
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    z-index: 1001;
+}
+
+.hamburger-icon span {
+    display: block;
+    width: 25px;
+    height: 3px;
+    background-color: var(--text-dark);
+    margin: 5px 0;
+    transition: all 0.3s ease-in-out;
+    border-radius: 2px;
+}
+
+.hamburger-icon.open span:nth-child(1) {
+    transform: translateY(8px) rotate(45deg);
+}
+.hamburger-icon.open span:nth-child(2) {
+    opacity: 0;
+}
+.hamburger-icon.open span:nth-child(3) {
+    transform: translateY(-8px) rotate(-45deg);
+}
+
+.mobile-nav-links {
+    display: none; 
+    position: absolute;
+    top: var(--header-height);
+    left: 0;
+    width: 100%;
+    background-color: #fff;
+    box-shadow: 0 4px 10px var(--shadow-color);
+    padding: 1rem 0;
+    border-top: 1px solid var(--border-color);
+}
+
+.mobile-nav-links.open {
+    display: block;
+}
+
+.mobile-nav-links a {
+    display: block;
+    color: var(--text-dark);
+    padding: 0.8rem var(--container-padding);
+    text-align: center;
+    font-weight: 500;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.mobile-nav-links a:hover,
+.mobile-nav-links a:focus,
+.mobile-nav-links a.active { 
+    background-color: var(--primary-color);
+    color: #fff;
+    text-decoration: none;
+}
+.lang-switcher-mobile {
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+    padding-bottom: 0.5rem;
+}
+.lang-switcher-mobile .lang-btn {
+    padding: 0.5rem 1rem;
+}
+
+
+@media (min-width: 992px) { 
+    .nav-links {
+        display: flex; 
+    }
+    .hamburger-icon {
+        display: none; 
+    }
+    .mobile-nav-links {
+        display: none !important; 
+    }
+}
+
+/* --- Hero Section --- */
+.hero-section {
+    position: relative;
+    height: 100vh;
+    min-height: 500px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-light);
+    overflow: hidden;
+    margin-top: calc(-1 * var(--header-height)); 
+}
+
+
+.hero-background-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('assets/homepage/background.jpg'); 
+    background-size: cover;
+    background-position: center;
+    z-index: 1;
+}
+
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(13, 39, 47, 0.6); 
+    z-index: 2;
+}
+
+.hero-content {
+    position: relative; 
+    z-index: 3;
+    max-width: 700px;
+    padding-top: var(--header-height); 
+}
+
+.hero-content h1 {
+    font-size: 3.2rem;
+    color: #fff;
+    margin-bottom: 1rem;
+    font-weight: 700;
+}
+
+.hero-content p {
+    font-size: 1.25rem;
+    color: var(--text-light);
+    margin-bottom: 2rem;
+}
+
+/* --- Buttons --- */
+.btn {
+    display: inline-block;
+    padding: 0.8rem 2rem;
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: 1rem;
+    text-align: center;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    border: 2px solid transparent;
+    text-decoration: none;
+}
+.btn:hover, .btn:focus {
+    text-decoration: none;
+}
+
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: #fff;
+    border-color: var(--primary-color);
+}
+.btn-primary:hover, .btn-primary:focus {
+    background-color: var(--primary-color-dark); 
+    border-color: var(--primary-color-dark);   
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(126, 18, 34, 0.3);
+}
+
+.btn-secondary {
+    background-color: var(--secondary-color);
+    color: #fff;
+    border-color: var(--secondary-color);
+}
+.btn-secondary:hover, .btn-secondary:focus {
+    background-color: var(--secondary-color-dark); 
+    border-color: var(--secondary-color-dark);  
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(13, 39, 47, 0.3);
+}
+
+.btn-accent {
+    background-color: var(--accent-color);
+    color: var(--text-dark);
+    border-color: var(--accent-color);
+}
+.btn-accent:hover, .btn-accent:focus {
+    background-color: var(--accent-color-dark); 
+    border-color: var(--accent-color-dark);   
+    color: var(--text-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(224, 197, 110, 0.3);
+}
+
+.btn.w-full {
+    width: 100%;
+    display: block;
+}
+
+
+/* --- About Us Section --- */
+.about-content p {
+    font-size: 1.05rem;
+    color: var(--text-muted);
+}
+.about-content .font-semibold {
+    font-weight: 500;
+    color: var(--text-dark);
+}
+
+.img-responsive {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    object-fit: cover;
+}
+.rounded { border-radius: 8px; }
+.shadow-lg { box-shadow: 0 10px 25px -5px var(--shadow-color), 0 8px 10px -6px var(--shadow-color); }
+
+.about-image-container,
+.about-map-container {
+    display: flex;
+    flex-direction: column;
+}
+
+#about-image {
+    width: 100%;
+}
+
+.map-iframe {
+    width: 100%;
+    height: 100%; 
+    min-height: 300px; 
+    border: none;
+}
+
+
+/* --- Products Section --- */
+.bg-light {
+    background-color: var(--bg-light);
+}
+
+.card {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px var(--shadow-color);
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    height: 100%; 
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 25px rgba(0,0,0,0.12);
+}
+
+.card-link-wrapper {
+    display: block; 
+    text-decoration: none; 
+    color: inherit; 
+    height: 100%; 
+}
+
+.card-img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+}
+
+.card-body {
+    padding: 1.5rem;
+    flex-grow: 1; 
+    display: flex;
+    flex-direction: column;
+}
+.card-body > p {
+    flex-grow: 1; 
+}
+
+
+.card-title {
+    font-size: 1.4rem;
+    margin-bottom: 0.75rem;
+    color: var(--primary-color);
+}
+.card p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+}
+
+/* New Product Layout Styles */
+.product-layout-container {
+    /* This container is mostly for semantic grouping in HTML */
+}
+
+.product-row-full {
+    margin-bottom: 2rem; /* Default spacing, matches var(--gap-responsive) or .gap-responsive */
+}
+
+@media (min-width: 768px) {
+    .product-row-full {
+         margin-bottom: 2.5rem; /* Matches .gap-responsive */
+    }
+}
+
+/* The .card within .product-row-full will naturally take available width */
+/* If a specific style for the full-width cherry card is desired on desktop (e.g., image beside text): */
+@media (min-width: 992px) {
+    .product-row-full .card {
+        /* Example: Image left, text right for the prominent cherry card */
+        /* display: flex;
+        flex-direction: row;
+        align-items: center; */
+    }
+    .product-row-full .card-img {
+        /* If using flex-direction: row: */
+        /* width: 40%;
+        height: auto;
+        max-height: 300px; /* Or adjust as needed */
+        /* object-fit: cover;
+        margin-right: 1.5rem;
+        margin-bottom: 0; /* Remove bottom margin if image is beside text */
+    }
+    .product-row-full .card-body {
+        /* If using flex-direction: row: */
+        /* width: 60%;
+        padding-left: 0; */ /* Adjust padding if needed */
+    }
+}
+
+
+.product-row-two-cols {
+    display: grid;
+    grid-template-columns: 1fr; /* Mobile: 1 column */
+    /* The 'gap-responsive' class will be added in HTML for gap */
+}
+
+@media (min-width: 768px) { /* Tablet and Desktop: 2 columns */
+    .product-row-two-cols {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+
+/* --- Business Potential Section --- */
+.bg-secondary {
+    background-color: var(--secondary-color);
+}
+
+.bg-secondary h1,
+.bg-secondary h2,
+.bg-secondary h3,
+.bg-secondary h4,
+.bg-secondary h5,
+.bg-secondary h6 {
+    color: #fff; 
+}
+.bg-secondary p,
+.bg-secondary li,
+.bg-secondary { 
+    color: var(--text-light); 
+}
+.bg-secondary a:not(.btn) { 
+    color: var(--accent-color);
+}
+.bg-secondary a:not(.btn):hover {
+    color: #fff;
+}
+
+.list-disc { list-style-type: disc; }
+.list-inside { list-style-position: inside; }
+.space-y-2 > * + * { margin-top: 0.5rem; }
+
+.max-w-sm { max-width: 24rem; } 
+.inline-block { display: inline-block; }
+
+/* --- Contact Section --- */
+.contact-form-container {
+    background-color: #fff;
+    padding: 2.5rem;
+    border-radius: 8px;
+    box-shadow: 0 8px 20px var(--shadow-color);
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+    overflow: hidden;
+}
+
+.contact-details h3, .contact-form h3 {
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+.contact-details p {
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
+}
+
+.form-group {
+    margin-bottom: 1.25rem;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: var(--text-dark);
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(126, 18, 34, 0.15);
+}
+
+/* --- Footer --- */
+.main-footer {
+    background-color: var(--bg-dark);
+    padding: 2.5rem var(--container-padding);
+    width: 100%;
+}
+.main-footer p {
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 991px) { 
+    .nav-links { 
+        display: none;
+    }
+    .hamburger-icon { 
+        display: block;
+    }
+
+    h1 { font-size: 2.5rem; }
+    h2 { font-size: 1.9rem; }
+    .hero-content h1 { font-size: 2.8rem; }
+    .hero-content p { font-size: 1.1rem; }
+    .section-padding { padding-top: 3rem; padding-bottom: 3rem; }
+
+    /* Ensure 2 columns for cherry gallery on tablets */
+    #cherry-gallery-section .grid-3-cols { /* Keep this for cherry gallery page */
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 767px) { /* Mobile devices */
+    :root {
+        --container-padding: 1rem; 
+    }
+    h1 { font-size: 2.2rem; }
+    h2 { font-size: 1.7rem; }
+    h3 { font-size: 1.4rem; }
+
+    .hero-section {
+        height: auto;
+        min-height: calc(100vh - var(--header-height));
+        padding: 4rem 0; 
+        margin-top: 0; 
+    }
+     .hero-content {
+        padding-top: 0;
+    }
+
+
+    .btn { padding: 0.7rem 1.5rem; font-size: 0.95rem; }
+
+    .section-title { margin-bottom: 2rem; }
+    .section-title::after { width: 60px; height: 3px; }
+    
+    .grid-2-cols { /* Default to 1 column for mobile */
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    /* .product-row-two-cols is already 1fr by default for mobile */
+    /* .grid-3-cols (for galleries) becomes 1 column */
+    .grid-3-cols {
+        grid-template-columns: 1fr;
+    }
+
+
+    .about-image-container,
+    .about-map-container {
+        margin-bottom: 1.5rem;
+    }
+    .about-map-container:last-child {
+        margin-bottom: 0;
+    }
+    .map-iframe {
+        height: 350px; 
+    }
+    #about-image {
+         height: 350px; 
+         object-fit: cover;
+    }
+
+
+    .card-img { height: 200px; }
+    .card-body { padding: 1rem; }
+    .card-title { font-size: 1.25rem; }
+
+    .contact-form-container { padding: 1.5rem; }
+    .main-footer { padding: 2rem var(--container-padding); }
+
+    #potential .text-center video.img-responsive {
+        display: block;
+        width: 100%;
+        max-width: 100%;
+        height: auto;
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+
+@media (max-width: 480px) { /* Small mobile devices */
+    .hero-content h1 { font-size: 2rem; }
+    .hero-content p { font-size: 0.9rem; }
+    .btn { padding: 0.6rem 1.2rem; font-size: 0.9rem; }
+
+    .map-iframe {
+        height: 300px;
+    }
+    #about-image {
+         height: 300px;
+    }
+}
+
+/* --- Sub-navigation for Assets Page --- */
+.sub-nav-assets {
+    text-align: center;
+    margin-bottom: 2.5rem; 
+    border-bottom: 2px solid var(--border-color); 
+    padding-bottom: 1rem;
+}
+
+.sub-nav-btn {
+    background-color: transparent;
+    color: var(--text-muted);
+    border: none; 
+    padding: 0.8rem 1.5rem; 
+    margin: 0 0.5rem; 
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: 1.1rem; 
+    cursor: pointer;
+    transition: color 0.3s ease, border-bottom-color 0.3s ease; 
+    border-bottom: 3px solid transparent; 
+    border-radius: 0; 
+}
+
+.sub-nav-btn:hover {
+    color: var(--primary-color);
+}
+
+.sub-nav-btn.active {
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color); 
+}
+
+/* --- Asset Content Panel --- */
+.asset-content-panel {
+    display: none; 
+    padding-top: 2rem; 
+    animation: fadeIn 0.5s ease-in-out; 
+}
+
+.asset-content-panel.active {
+    display: block;
+}
+
+.asset-title { 
+    font-size: 1.8rem; 
+    color: var(--secondary-color); 
+    margin-bottom: 1.5rem;
+    text-align: left; 
+}
+
+.asset-content-panel p { 
+    font-size: 1.05rem;
+    color: var(--text-dark); 
+    margin-bottom: 1.5rem;
+    line-height: 1.7;
+}
+
+/* --- Asset Gallery (reusable for Cherries gallery) --- */
+.asset-gallery { 
+    margin-top: 2rem;
+}
+
+.gallery-item img {
+    width: 100%;
+    height: auto; 
+    max-height: 350px; 
+    object-fit: cover;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.gallery-item img:hover {
+    transform: scale(1.03); 
+    box-shadow: 0 8px 20px var(--shadow-color); 
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 767px) {
+    .sub-nav-btn {
+        font-size: 1rem;
+        padding: 0.6rem 1rem;
+        margin: 0 0.25rem; 
+    }
+    .asset-title { 
+        font-size: 1.6rem;
+        text-align: center; 
+    }
+}

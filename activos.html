@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activos - Agricura</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="main-header">
+        <nav class="container nav-container">
+            <a href="index.html#home" class="logo-link" data-aos="fade-down">
+                <img src="assets/homepage/agricura-logo-h.png" alt="Agricura Logo" class="logo" onerror="this.onerror=null; this.src='https://placehold.co/180x50/F8F9FA/7E1222?text=Agricura'; this.classList.add('logo-placeholder');">
+            </a>
+            <div class="nav-links">
+                <a href="index.html#about" data-lang-key="navAbout">Nosotros</a>
+                <a href="index.html#products" data-lang-key="navProducts">Productos</a>
+                <a href="index.html#potential" data-lang-key="navPotential">Potencial de Negocio</a>
+                <a href="index.html#contact" data-lang-key="navContact">Contacto</a>
+                <a href="activos.html" data-lang-key="navAssets" class="active">Activos</a> 
+                <div class="lang-switcher">
+                    <button id="lang-en-desktop" class="lang-btn">EN</button>
+                    <button id="lang-es-desktop" class="lang-btn active-lang">ES</button>
+                </div>
+            </div>
+            <button id="mobile-menu-button" class="hamburger-icon" aria-label="Toggle menu" aria-expanded="false">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </nav>
+        <div id="mobile-menu" class="mobile-nav-links">
+            <a href="index.html#about" data-lang-key="navAbout">Nosotros</a>
+            <a href="index.html#products" data-lang-key="navProducts">Productos</a>
+            <a href="index.html#potential" data-lang-key="navPotential">Potencial de Negocio</a>
+            <a href="index.html#contact" data-lang-key="navContact">Contacto</a>
+            <a href="activos.html" data-lang-key="navAssets" class="active">Activos</a> 
+            <div class="lang-switcher-mobile">
+                <button id="lang-en-mobile" class="lang-btn">EN</button>
+                <button id="lang-es-mobile" class="lang-btn active-lang">ES</button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section id="assets-for-sale" class="section-padding">
+            <div class="container">
+                <h2 class="section-title" data-aos="fade-up" data-lang-key="assetsForSaleTitle">Activos en Venta</h2>
+
+                <nav class="sub-nav-assets" data-aos="fade-up" data-aos-delay="100">
+                    <button class="sub-nav-btn active" data-target="lote65-66" data-lang-key="navLote6566">Lote 65 & 66</button>
+                    <button class="sub-nav-btn" data-target="lote68-69" data-lang-key="navLote6869">Lote 68 & 69</button>
+                </nav>
+
+                <div id="lote65-66" class="asset-content-panel active" data-aos="fade-up" data-aos-delay="200">
+                    <h3 class="asset-title" data-lang-key="lote6566Title">Lote 65 & 66</h3>
+                    <p data-lang-key="lote6566Desc">Descripción detallada de Lote 65 & 66. Características del terreno, ubicación, superficie, aptitud agrícola, derechos de agua, potencial de desarrollo, etc. Este es un texto de ejemplo que deberá ser reemplazado con la información real del activo.</p>
+                    <div class="asset-gallery grid-2-cols gap-responsive">
+                        <div class="gallery-item" data-aos="zoom-in" data-aos-delay="300">
+                            <img src="assets/land/65-66-aereo.jpg" alt="Foto 1 de Lote 65 & 66" class="img-responsive rounded shadow-lg" onerror="this.onerror=null; this.src='https://placehold.co/600x400/EFEFEF/7E1222?text=Lote+65-66+Foto+1';">
+                        </div>
+                        <div class="gallery-item" data-aos="zoom-in" data-aos-delay="400">
+                            <img src="assets/land/65-66-ruta5.jpg" alt="Foto 2 de Lote 65 & 66" class="img-responsive rounded shadow-lg" onerror="this.onerror=null; this.src='https://placehold.co/600x400/EFEFEF/7E1222?text=Lote+65-66+Foto+2';">
+                        </div>
+                        <div class="gallery-item" data-aos="zoom-in" data-aos-delay="400">
+                            <img src="assets/land/65-66-ruta-no.jpg" alt="Foto 2 de Lote 65 & 66" class="img-responsive rounded shadow-lg" onerror="this.onerror=null; this.src='https://placehold.co/600x400/EFEFEF/7E1222?text=Lote+65-66+Foto+2';">
+                        </div>
+                        <div class="gallery-item" data-aos="zoom-in" data-aos-delay="400">
+                            <img src="assets/land/65-66-sur.jpg" alt="Foto 2 de Lote 65 & 66" class="img-responsive rounded shadow-lg" onerror="this.onerror=null; this.src='https://placehold.co/600x400/EFEFEF/7E1222?text=Lote+65-66+Foto+2';">
+                        </div>
+                        <div class="gallery-item" data-aos="zoom-in" data-aos-delay="400">
+                            <img src="assets/land/65-66-suroriente.jpg" alt="Foto 2 de Lote 65 & 66" class="img-responsive rounded shadow-lg" onerror="this.onerror=null; this.src='https://placehold.co/600x400/EFEFEF/7E1222?text=Lote+65-66+Foto+2';">
+                        </div>
+                        <div class="gallery-item" data-aos="zoom-in" data-aos-delay="400">
+                            <img src="assets/land/65-66-total.jpg" alt="Foto 2 de Lote 65 & 66" class="img-responsive rounded shadow-lg" onerror="this.onerror=null; this.src='https://placehold.co/600x400/EFEFEF/7E1222?text=Lote+65-66+Foto+2';">
+                        </div>
+                        </div>
+                </div>
+
+                <div id="lote68-69" class="asset-content-panel" data-aos="fade-up" data-aos-delay="200">
+                     <h3 class="asset-title" data-lang-key="lote6869Title">Lote 68 & 69</h3>
+                    <p data-lang-key="lote6869Desc">Descripción detallada de Lote 68 & 69. Características del terreno, ubicación, superficie, aptitud agrícola, derechos de agua, potencial de desarrollo, etc. Este es un texto de ejemplo que deberá ser reemplazado con la información real del activo.</p>
+                    <div class="asset-gallery grid-2-cols gap-responsive">
+                        <div class="gallery-item" data-aos="zoom-in" data-aos-delay="300">
+                            <img src="assets/land/68-69-1.jpg" alt="Foto 1 de Lote 68 & 69" class="img-responsive rounded shadow-lg" onerror="this.onerror=null; this.src='https://placehold.co/600x400/EFEFEF/7E1222?text=Lote+68-69+Foto+1';">
+                        </div>
+                        <div class="gallery-item" data-aos="zoom-in" data-aos-delay="400">
+                            <img src="assets/land/68-69-aereo.jpg" alt="Foto 2 de Lote 68 & 69" class="img-responsive rounded shadow-lg" onerror="this.onerror=null; this.src='https://placehold.co/600x400/EFEFEF/7E1222?text=Lote+68-69+Foto+2';">
+                        </div>
+                        <div class="gallery-item" data-aos="zoom-in" data-aos-delay="400">
+                            <img src="assets/land/68-69-2.jpg" alt="Foto 2 de Lote 68 & 69" class="img-responsive rounded shadow-lg" onerror="this.onerror=null; this.src='https://placehold.co/600x400/EFEFEF/7E1222?text=Lote+68-69+Foto+2';">
+                        </div>
+                        <div class="gallery-item" data-aos="zoom-in" data-aos-delay="400">
+                            <img src="assets/land/68-69-sur.jpg" alt="Foto 2 de Lote 68 & 69" class="img-responsive rounded shadow-lg" onerror="this.onerror=null; this.src='https://placehold.co/600x400/EFEFEF/7E1222?text=Lote+68-69+Foto+2';">
+                        </div>
+                        <div class="gallery-item" data-aos="zoom-in" data-aos-delay="400">
+                            <img src="assets/land/68-69-3.jpg" alt="Foto 2 de Lote 68 & 69" class="img-responsive rounded shadow-lg" onerror="this.onerror=null; this.src='https://placehold.co/600x400/EFEFEF/7E1222?text=Lote+68-69+Foto+2';">
+                        </div>
+                        </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="main-footer bg-dark text-light">
+        <div class="container text-center">
+            <p>© <span id="currentYear"></span> <span data-lang-key="companyNameFooter">Agricura</span>. <span data-lang-key="footerRights">Todos los derechos reservados.</span></p>
+            <p data-lang-key="footerAddress">Rengo, Chile</p>
+        </div>
+    </footer>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agricura - Cosechando Futuro</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="main-header">
+        <nav class="container nav-container">
+            <a href="#home" class="logo-link" data-aos="fade-down">
+                <img src="assets/homepage/agricura-logo-h.png" alt="Agricura Logo" class="logo" onerror="this.onerror=null; this.src='https://placehold.co/180x50/F8F9FA/7E1222?text=Agricura'; this.classList.add('logo-placeholder');">
+            </a>
+            <div class="nav-links">
+                <a href="#about" data-lang-key="navAbout">Nosotros</a>
+                <a href="#products" data-lang-key="navProducts">Productos</a>
+                <a href="#potential" data-lang-key="navPotential">Potencial de Negocio</a>
+                <a href="#contact" data-lang-key="navContact">Contacto</a>
+                <a href="activos.html" data-lang-key="navAssets">Activos</a>
+                <div class="lang-switcher">
+                    <button id="lang-en-desktop" class="lang-btn">EN</button>
+                    <button id="lang-es-desktop" class="lang-btn active-lang">ES</button>
+                </div>
+            </div>
+
+            <button id="mobile-menu-button" class="hamburger-icon" aria-label="Toggle menu" aria-expanded="false">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </nav>
+        <div id="mobile-menu" class="mobile-nav-links">
+            <a href="#about" data-lang-key="navAbout">Nosotros</a>
+            <a href="#products" data-lang-key="navProducts">Productos</a>
+            <a href="#potential" data-lang-key="navPotential">Potencial de Negocio</a>
+            <a href="#contact" data-lang-key="navContact">Contacto</a>
+            <a href="activos.html" data-lang-key="navAssets">Activos</a> 
+            <div class="lang-switcher-mobile">
+                <button id="lang-en-mobile" class="lang-btn">EN</button>
+                <button id="lang-es-mobile" class="lang-btn active-lang">ES</button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section id="home" class="hero-section">
+            <div class="hero-background-image"></div>
+            <div class="hero-overlay"></div>
+            <div class="container hero-content text-center" data-aos="fade-up">
+                <h1 data-lang-key="heroTitle">Cerezas para el Mundo</h1>
+                <p data-lang-key="heroSubtitle">Cultivando excelencia en Rengo, Chile desde 1988.</p>
+                <a href="#products" class="btn btn-primary" data-lang-key="heroCta">Descubre Nuestros Productos</a>
+            </div>
+        </section>
+
+        <section id="about" class="section-padding">
+            <div class="container">
+                <h2 class="section-title" data-aos="fade-up" data-lang-key="aboutTitle">Nuestra Historia</h2>
+                <div class="about-content" data-aos="fade-up" data-aos-delay="100">
+                    <p class="mb-4" data-lang-key="aboutIntro">Agricura, una agroindustria con raíces en Rengo, Chile, fue fundada en 1988 por Joaquín Edgardo Cura, impulsado por su profunda pasión por la agricultura.</p>
+                    <p class="mb-4" data-lang-key="aboutHistory">Durante casi cuatro décadas, Agricura ha cultivado una diversa gama de productos, incluyendo uvas, peras, sandías y ciruelas. En los últimos años, nuestro enfoque se ha centrado en la producción de manzanas de alta calidad y, de manera más significativa, en cerezas premium destinadas a los mercados de exportación.</p>
+                    <p class="font-semibold" data-lang-key="aboutLegacy">Estamos comprometidos a continuar nuestro legado de excelencia agrícola y prácticas sostenibles.</p>
+                </div>
+                <div class="grid-2-cols gap-responsive mt-8 items-stretch">
+                    <div data-aos="fade-right" data-aos-delay="200" class="about-image-container">
+                        <img src="assets/homepage/rengo.jpg" alt="Agricura Farm in Rengo" class="img-responsive rounded shadow-lg" id="about-image" onerror="this.onerror=null; this.src='https://placehold.co/600x450/EFEFEF/7E1222?text=Rengo+Farm+View';">
+                    </div>
+                    <div data-aos="fade-left" data-aos-delay="300" class="about-map-container">
+                        <iframe
+                            src="https://maps.google.com/maps?q=-34.389722,-70.860556&hl=es&z=13&output=embed" class="map-iframe rounded shadow-lg" id="about-map-iframe"
+                            allowfullscreen=""
+                            loading="lazy"
+                            referrerpolicy="no-referrer-when-downgrade"
+                            title="Mapa de ubicación de Rengo">
+                        </iframe>
+                        <noscript>
+                            <p>Para ver el mapa, por favor active JavaScript, o visite <a href="https://www.google.com/maps/place/Rengo,+O'Higgins,+Chile">Google Maps</a>.</p>
+                        </noscript>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="products" class="section-padding bg-light">
+            <div class="container">
+                <h2 class="section-title" data-aos="fade-up" data-lang-key="productsTitle">Nuestros Productos</h2>
+                <p class="text-center lead-text mb-12" data-aos="fade-up" data-aos-delay="100" data-lang-key="productsIntro">Si bien las cerezas son nuestra especialidad, también cultivamos manzanas y maíz con la misma dedicación a la calidad.</p>
+                
+                <div class="product-layout-container">
+                    <div class="product-row-full" data-aos="fade-up" data-aos-delay="200">
+                        <a href="cerezas.html" class="card-link-wrapper"> 
+                            <div class="card">
+                                <img src="assets/homepage/quality-cherries.jpg" alt="Quality Cherries" class="card-img" onerror="this.onerror=null; this.src='https://placehold.co/400x250/F8F9FA/7E1222?text=Cherries';">
+                                <div class="card-body">
+                                    <h3 class="card-title" data-lang-key="cherriesTitle">Cerezas de Exportación</h3>
+                                    <p data-lang-key="cherriesDesc">Nuestro producto principal. Cultivamos variedades de cerezas premium, meticulosamente cuidadas y cosechadas para los mercados internacionales.</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+
+                    <div class="product-row-two-cols gap-responsive">
+                        <div class="card" data-aos="fade-up" data-aos-delay="200"> <img src="assets/homepage/pinklady.jpg" alt="Apples" class="card-img" onerror="this.onerror=null; this.src='https://placehold.co/400x250/F8F9FA/7E1222?text=Apples';">
+                            <div class="card-body">
+                                <h3 class="card-title" data-lang-key="applesTitle">Manzanas Frescas</h3>
+                                <p data-lang-key="applesDesc">También producimos una selección de manzanas de alta calidad, perfectas tanto para el consumo local como para la exportación.</p>
+                            </div>
+                        </div>
+                        <div class="card" data-aos="fade-up" data-aos-delay="300"> <img src="assets/homepage/corn.jpg" alt="Corn" class="card-img" onerror="this.onerror=null; this.src='https://placehold.co/400x250/F8F9FA/7E1222?text=Corn';">
+                            <div class="card-body">
+                                <h3 class="card-title" data-lang-key="cornTitle">Maíz de Calidad</h3>
+                                <p data-lang-key="cornDesc">Nuestra producción de maíz complementa nuestro cultivo de frutas, contribuyendo a nuestra diversa cartera agrícola.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </div>
+        </section>
+
+        <section id="potential" class="section-padding bg-secondary text-light">
+            <div class="container">
+                <h2 class="section-title" data-aos="fade-up" data-lang-key="potentialTitle">Potencial de Negocio con Agricura</h2>
+                <div class="grid-2-cols gap-responsive items-center">
+                    <div data-aos="fade-right" data-aos-delay="100">
+                        <p class="mb-6 text-lg" data-lang-key="potentialIntro">Agricura presenta una oportunidad atractiva para compradores de cerezas, inversionistas y socios financieros. Nuestra ubicación estratégica y experiencia nos posicionan para el crecimiento.</p>
+                        <ul class="list-disc list-inside space-y-2 mb-8">
+                            <li data-lang-key="potentialPoint1">Variedades de cerezas premium de alta demanda.</li>
+                            <li data-lang-key="potentialPoint2">Canales de exportación y experiencia establecidos.</li>
+                            <li data-lang-key="potentialPoint3">Compromiso con prácticas agrícolas modernas y sostenibles.</li>
+                            <li data-lang-key="potentialPoint4">Operaciones escalables con espacio para expansión.</li>
+                            <li data-lang-key="potentialPoint5">Sólidas relaciones con proveedores locales y la comunidad.</li>
+                        </ul>
+                        <a href="#contact" class="btn btn-accent" data-lang-key="potentialCta">Asóciate con Nosotros</a>
+                    </div>
+                    <div class="text-center" data-aos="fade-left" data-aos-delay="200">
+                         <video autoplay loop muted playsinline class="img-responsive rounded shadow-lg max-w-sm inline-block">
+                             <source src="assets/homepage/video.mp4" type="video/mp4">
+                             Tu navegador no soporta la etiqueta de video.
+                         </video>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="section-padding">
+            <div class="container">
+                <h2 class="section-title" data-aos="fade-up" data-lang-key="contactTitle">Contáctanos</h2>
+                <p class="text-center lead-text mb-12" data-aos="fade-up" data-aos-delay="100" data-lang-key="contactIntro">Damos la bienvenida a consultas de potenciales clientes, inversionistas, socios y proveedores.</p>
+                <div class="contact-form-container" data-aos="fade-up" data-aos-delay="200">
+                    <div class="grid-2-cols gap-responsive">
+                        <div class="contact-details">
+                            <h3 class="text-xl font-semibold mb-3" data-lang-key="contactGetInTouch">Ponte en Contacto</h3>
+                            <p class="mb-2">
+                                <strong data-lang-key="contactEmailLabel">Correo Electrónico:</strong>
+                                <a href="mailto:contacto@agricura.cl" class="link-primary">contacto@agricura.cl</a>
+                            </p>
+                            <p class="mb-4">
+                                <strong data-lang-key="contactPhoneLabel">Teléfono:</strong>
+                                <a href="tel:+56947971876" class="link-primary">+56 9 47971876</a>
+                            </p>
+                            <h3 class="text-xl font-semibold mb-3" data-lang-key="contactAddressTitle">Nuestra Ubicación</h3>
+                            <p data-lang-key="contactAddressDetail">Rengo, Provincia de Cachapoal, Región de O'Higgins, Chile</p>
+                        </div>
+                        <form id="contactForm" action="https://formspree.io/f/xdkgqaob" method="POST" class="contact-form">
+                            <h3 class="text-xl font-semibold mb-4" data-lang-key="contactFormTitle">Envíanos un Mensaje</h3>
+                            
+                            <input type="hidden" name="_subject" value="[WEBPAGE-CONTACT] New submission!">
+
+                            <div class="form-group">
+                                <label for="form-name" data-lang-key="formName">Nombre</label>
+                                <input type="text" id="form-name" name="name" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="form-email" data-lang-key="formEmail">Correo Electrónico</label>
+                                <input type="email" id="form-email" name="email" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="form-subject" data-lang-key="formSubject">Asunto</label>
+                                <input type="text" id="form-subject" name="Subject" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="form-message" data-lang-key="formMessage">Mensaje</label>
+                                <textarea id="form-message" name="message" rows="4" class="form-control" required></textarea>
+                            </div>
+                            <div>
+                                <button type="submit" class="btn btn-primary w-full" data-lang-key="formSubmit">Enviar Mensaje</button>
+                            </div>
+                            
+                            <div id="form-status-message" style="margin-top: 1rem; text-align: center; font-weight: 500;"></div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="main-footer bg-dark text-light">
+        <div class="container text-center">
+            <p>© <span id="currentYear"></span> <span data-lang-key="companyNameFooter">Agricura</span>. <span data-lang-key="footerRights">Todos los derechos reservados.</span></p>
+            <p data-lang-key="footerAddress">Rengo, Chile</p>
+        </div>
+    </footer>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
