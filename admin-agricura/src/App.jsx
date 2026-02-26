@@ -916,17 +916,17 @@ function InvoiceForm({ supabase, onSuccess, invoiceToEdit, onShowConfirm }) {
           
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
              <div className="col-span-2 lg:col-span-1 space-y-1.5">
-               <label className="text-[9px] font-black text-slate-300 uppercase tracking-widest px-1">Folio / Número</label>
+               <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest px-1">Folio / Número</label>
                <input name="no_documento" value={formData.no_documento} onChange={handleGeneralChange} className="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl font-bold text-sm outline-none transition-all focus:bg-white" placeholder="Folio #" required />
              </div>
              
              {/* AJUSTE: Etiquetas de Fecha Claras */}
              <div className="space-y-1.5">
-               <label className="text-[9px] font-black text-blue-400 uppercase tracking-widest px-1">Fecha Emisión</label>
+               <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest px-1">Fecha Emisión</label>
                <input type="date" name="fecha_emision" value={formData.fecha_emision} onChange={handleGeneralChange} className="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl font-bold text-sm outline-none transition-all focus:bg-white" required />
              </div>
              <div className="space-y-1.5">
-               <label className="text-[9px] font-black text-rose-400 uppercase tracking-widest px-1">Vencimiento</label>
+               <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest px-1">Vencimiento</label>
                <input type="date" name="fecha_venc" value={formData.fecha_venc} onChange={handleGeneralChange} className="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl font-bold text-sm outline-none transition-all focus:bg-white" required />
              </div>
           </div>
@@ -948,7 +948,7 @@ function InvoiceForm({ supabase, onSuccess, invoiceToEdit, onShowConfirm }) {
                     <input type="number" step="0.01" value={it.cantidad} onChange={(e) => handleItemChange(idx, 'cantidad', e.target.value)} className="w-full bg-white border border-slate-200 p-3 rounded-xl text-sm text-center font-bold outline-none" placeholder="Cant." />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-[9px] font-black text-emerald-600 uppercase tracking-widest px-1">Neto Item (Sin IVA)</label>
+                    <label className="text-[9px] font-black text-emerald-600 uppercase tracking-widest px-1">Total (Sin IVA)</label>
                     <div className="bg-emerald-50 border border-emerald-100 p-3 rounded-xl flex items-center h-[46px]">
                       <span className="text-emerald-700 font-black mr-1">$</span>
                       <input 
