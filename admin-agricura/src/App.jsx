@@ -241,23 +241,70 @@ const ExcelImportModal = ({ onClose, onImported, supabase }) => {
 
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-900/60 backdrop-blur-md p-4 animate-in fade-in">
-      <div className="bg-white w-full max-w-md rounded-[2rem] shadow-2xl p-8 relative border border-slate-100">
-        <div className="flex justify-between items-center mb-6">
-          <h3 className="text-xl font-black text-slate-800 uppercase tracking-tight">Importación</h3>
+      <div className="bg-white w-full max-w-lg rounded-[2rem] shadow-2xl p-8 lg:p-10 relative border border-slate-100 max-h-[95vh] overflow-y-auto">
+        <div className="flex justify-between items-center mb-8">
+          <div className="flex items-center gap-3">
+            <div className="bg-emerald-100 p-2.5 rounded-xl text-emerald-600"><FileSpreadsheet size={22}/></div>
+            <h3 className="text-xl font-black text-slate-800 uppercase tracking-tight leading-none">Importar Detalles</h3>
+          </div>
           <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full transition-all active:scale-90"><X size={20}/></button>
         </div>
-        <div className="space-y-6">
-          <div className="relative group border-2 border-dashed border-slate-200 rounded-2xl p-10 text-center bg-slate-50 hover:bg-blue-50 transition-all">
-            <input type="file" accept=".xlsx" onChange={(e) => setFile(e.target.files[0])} className="absolute inset-0 opacity-0 cursor-pointer" />
-            <Upload className="mx-auto text-slate-300 mb-3" size={32} />
-            <p className="text-xs font-black text-slate-600 uppercase tracking-widest leading-tight">{file ? file.name : "Subir Excel (.xlsx)"}</p>
+
+        {/* INSTRUCCIONES CLARAS REFINADAS */}
+        <div className="bg-slate-50 border border-slate-100 rounded-2xl p-6 mb-8 space-y-6">
+          <div className="space-y-3">
+             <div className="flex items-center gap-2 text-blue-600">
+               <CheckCircle size={18} className="shrink-0" />
+               <p className="text-[11px] font-black uppercase tracking-widest">Columnas Obligatorias</p>
+             </div>
+             <div className="flex flex-wrap gap-2">
+                {['proveedor', 'no_documento', 'detalle', 'cantidad', 'total_items'].map(col => (
+                  <span key={col} className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-[10px] font-black text-slate-600 tracking-tight shadow-sm">{col}</span>
+                ))}
+             </div>
           </div>
-          {status && <p className="text-center text-xs font-bold text-blue-600 uppercase tracking-widest">{status}</p>}
+
+          <div className="space-y-3">
+             <div className="flex items-center gap-2 text-blue-500">
+                <AlertCircle size={18} className="shrink-0" />
+                <p className="text-[11px] font-black uppercase tracking-widest">Restricción Contable</p>
+             </div>
+             <div className="bg-amber-50 border border-amber-100 p-3 rounded-xl">
+                <p className="text-xs font-bold text-gray-700 leading-relaxed">
+                  El valor en <span className="font-black text-blue-500">total_items</span> debe ingresarse <span className="font-black text-blue-500">SIN IVA (Neto)</span>. El sistema calculará el impuesto automáticamente.
+                </p>
+             </div>
+          </div>
+
+          <a 
+            href="/template-agricura.xlsx" 
+            download 
+            className="flex items-center justify-center gap-3 w-full py-4 bg-blue-500 text-white hover:bg-slate-800 rounded-xl transition-all active:scale-95 group shadow-lg"
+          >
+            <Download size={18} className="group-hover:translate-y-0.5 transition-transform" />
+            <span className="text-[10px] font-black uppercase tracking-widest">Descargar Template Oficial</span>
+          </a>
+        </div>
+
+        <div className="space-y-6">
+          <div className="relative group border-2 border-dashed border-slate-200 rounded-3xl p-12 text-center bg-slate-50 hover:bg-blue-50 transition-all cursor-pointer">
+            <input type="file" accept=".xlsx" onChange={(e) => setFile(e.target.files[0])} className="absolute inset-0 opacity-0 cursor-pointer" />
+            <Upload className="mx-auto text-slate-300 mb-4" size={40} />
+            <p className="text-sm font-black text-slate-600 uppercase tracking-widest leading-tight">{file ? file.name : "Subir Archivo Excel"}</p>
+            <p className="text-[10px] font-bold text-slate-400 mt-2">Arrastra tu archivo aquí o haz clic</p>
+          </div>
+          
+          {status && (
+            <div className={`p-4 rounded-xl text-center text-xs font-black uppercase tracking-widest ${status.includes('Error') ? 'bg-rose-50 text-rose-600' : 'bg-blue-50 text-blue-600 animate-pulse'}`}>
+              {status}
+            </div>
+          )}
+
           <button 
             disabled={!file || loading} onClick={processExcel}
-            className="w-full bg-blue-600 text-white font-black py-4 rounded-xl shadow-lg uppercase tracking-widest text-[11px] active:scale-95 transition-all disabled:opacity-50"
+            className="w-full bg-blue-600 text-white font-black py-5 rounded-2xl shadow-xl uppercase tracking-widest text-[11px] active:scale-95 transition-all disabled:opacity-50 hover:bg-blue-700"
           >
-            {loading ? 'Procesando...' : 'Iniciar Sincronización'}
+            {loading ? 'Sincronizando Auditoría...' : 'Iniciar Carga de Datos'}
           </button>
         </div>
       </div>
@@ -368,13 +415,16 @@ export default function App() {
         ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
         w-64 bg-slate-900 text-white flex flex-col shadow-2xl shrink-0
       `}>
-        <button onClick={() => setIsSidebarOpen(false)} className="lg:hidden absolute top-6 right-6 p-2 text-slate-400 hover:text-white transition-colors"><X size={24} /></button>
+        {/* BOTÓN CERRAR: Movido un poco más arriba para no estorbar el nav */}
+        <button onClick={() => setIsSidebarOpen(false)} className="lg:hidden absolute top-5 right-5 p-2 text-slate-400 hover:text-white transition-colors z-30"><X size={24} /></button>
+        
         <div className="p-10 text-center hidden lg:block shrink-0">
           <h1 className="text-2xl font-black tracking-[0.15em] uppercase">AGRICURA</h1>
           <div className="h-1 w-8 bg-blue-600 mx-auto mt-2 rounded-full shadow-[0_0_10px_rgba(37,99,235,0.6)]"></div>
         </div>
         
-        <nav className="flex-1 px-5 space-y-2 mt-4 lg:mt-0 overflow-y-auto scrollbar-hide py-4">
+        {/* NAV: mt-20 en móvil para evitar solapamiento con el botón X */}
+        <nav className="flex-1 px-5 space-y-2 mt-20 lg:mt-0 overflow-y-auto scrollbar-hide py-4">
           <button 
             onClick={() => { setCurrentView('dashboard'); setIsSidebarOpen(false); }} 
             className={`w-full flex items-center gap-4 px-5 py-4 rounded-xl transition-all duration-200 ${currentView === 'dashboard' ? 'bg-blue-600 shadow-lg shadow-blue-900/40 text-white font-bold' : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'}`}
@@ -406,11 +456,11 @@ export default function App() {
               {session?.user?.email?.[0].toUpperCase()}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-[10px] font-bold truncate opacity-50 uppercase tracking-tighter leading-none mb-1">Usuario Activo</p>
-              <p className="text-[11px] font-black truncate uppercase tracking-tighter leading-none">{session?.user?.email?.split('@')[0]}</p>
+              <p className="text-[10px] font-bold truncate opacity-50 uppercase tracking-tighter mb-1 leading-none tracking-tighter leading-none mb-1">Usuario Activo</p>
+              <p className="text-[11px] font-black truncate uppercase tracking-tighter mb-1 leading-none tracking-tighter leading-none">{session?.user?.email?.split('@')[0]}</p>
             </div>
           </div>
-          <button onClick={() => supabaseClient.auth.signOut()} className="w-full py-3 bg-red-500/10 text-red-400 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-red-500/20 transition-all border border-red-500/10">Cerrar Sesión</button>
+          <button onClick={() => supabaseClient.auth.signOut()} className="w-full py-3 bg-red-500/10 text-red-400 rounded-xl text-[14px] font-black uppercase tracking-widest hover:bg-red-500/20 transition-all border border-red-500/10">Cerrar Sesión</button>
         </div>
       </aside>
 
@@ -667,8 +717,8 @@ function Dashboard({ supabase, onEdit, onViewDetail, onShowConfirm }) {
                     onClick={clearFilters} 
                     className="bg-[#4F6EF7] hover:bg-[#3D5CD9] text-white px-8 h-[46px] rounded-xl flex items-center gap-3 shadow-lg shadow-blue-200 transition-all active:scale-95"
                    >
-                     <LayoutDashboard size={18} strokeWidth={2.5} />
-                     <span className="text-[11px] font-black uppercase tracking-[0.15em]">Limpiar Filtros</span>
+                     <LayoutDashboard size={20} strokeWidth={2.5} />
+                     <span className="text-[12px] font-black uppercase tracking-[0.15em]">Limpiar Filtros</span>
                    </button>
                 </div>
               </div>
@@ -687,8 +737,8 @@ function Dashboard({ supabase, onEdit, onViewDetail, onShowConfirm }) {
                 <th className="p-6">Proveedor / Folio</th>
                 <th className="p-6">Emisión</th>
                 <th className="p-6">Vencimiento</th>
-                <th className="p-6">Centro de Costo</th>
-                <th className="p-6 text-right">Monto Final</th>
+                <th className="p-6">C. Costo</th>
+                <th className="p-6 text-center">Monto</th>
                 <th className="p-6 text-center">Estado</th>
                 <th className="p-6 text-center">Acciones</th>
               </tr>
@@ -864,31 +914,51 @@ function InvoiceForm({ supabase, onSuccess, invoiceToEdit, onShowConfirm }) {
           <label className="text-xs font-black text-slate-400 uppercase tracking-widest block px-1 leading-none">Proveedor y Datos Básicos</label>
           <input name="proveedor" value={formData.proveedor} onChange={handleGeneralChange} className="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl font-black uppercase text-base lg:text-lg focus:ring-4 focus:ring-blue-100 transition-all outline-none" placeholder="Nombre del Proveedor" required />
           
-          {/* AJUSTE MÓVIL: Folio ocupa ancho completo en móvil para que las fechas queden juntas abajo */}
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-             <input name="no_documento" value={formData.no_documento} onChange={handleGeneralChange} className="col-span-2 lg:col-span-1 bg-slate-50 border border-slate-200 p-4 rounded-xl font-bold text-sm outline-none transition-all focus:bg-white" placeholder="Folio #" required />
-             <input type="date" name="fecha_emision" value={formData.fecha_emision} onChange={handleGeneralChange} className="bg-slate-50 border border-slate-200 p-4 rounded-xl font-bold text-sm outline-none transition-all focus:bg-white" required />
-             <input type="date" name="fecha_venc" value={formData.fecha_venc} onChange={handleGeneralChange} className="bg-slate-50 border border-slate-200 p-4 rounded-xl font-bold text-sm outline-none transition-all focus:bg-white" required />
+             <div className="col-span-2 lg:col-span-1 space-y-1.5">
+               <label className="text-[9px] font-black text-slate-300 uppercase tracking-widest px-1">Folio / Número</label>
+               <input name="no_documento" value={formData.no_documento} onChange={handleGeneralChange} className="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl font-bold text-sm outline-none transition-all focus:bg-white" placeholder="Folio #" required />
+             </div>
+             
+             {/* AJUSTE: Etiquetas de Fecha Claras */}
+             <div className="space-y-1.5">
+               <label className="text-[9px] font-black text-blue-400 uppercase tracking-widest px-1">Fecha Emisión</label>
+               <input type="date" name="fecha_emision" value={formData.fecha_emision} onChange={handleGeneralChange} className="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl font-bold text-sm outline-none transition-all focus:bg-white" required />
+             </div>
+             <div className="space-y-1.5">
+               <label className="text-[9px] font-black text-rose-400 uppercase tracking-widest px-1">Vencimiento</label>
+               <input type="date" name="fecha_venc" value={formData.fecha_venc} onChange={handleGeneralChange} className="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl font-bold text-sm outline-none transition-all focus:bg-white" required />
+             </div>
           </div>
         </div>
 
         <div className="space-y-4 pt-6 border-t border-slate-100">
           <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest flex items-center gap-3 leading-none"><Package size={18} className="text-blue-600"/> Detalle de Productos</h3>
-          <div className="space-y-3">
+          <div className="space-y-6">
             {formData.items.map((it, idx) => (
-              <div key={idx} className="bg-slate-50 p-5 rounded-2xl border border-slate-100 space-y-4 relative group hover:bg-white hover:shadow-md transition-all">
-                <input value={it.detalle} onChange={(e) => handleItemChange(idx, 'detalle', e.target.value)} className="w-full bg-white border border-slate-200 p-3.5 rounded-xl text-sm font-bold uppercase outline-none focus:ring-2 focus:ring-blue-500 shadow-sm" placeholder="Descripción de la línea..." />
+              <div key={idx} className="bg-slate-50 p-6 rounded-3xl border border-slate-100 space-y-4 relative group hover:bg-white hover:shadow-md transition-all">
+                <div className="space-y-1.5">
+                  <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest px-1">Descripción del Ítem</label>
+                  <input value={it.detalle} onChange={(e) => handleItemChange(idx, 'detalle', e.target.value)} className="w-full bg-white border border-slate-200 p-3.5 rounded-xl text-sm font-bold uppercase outline-none focus:ring-2 focus:ring-blue-500 shadow-sm" placeholder="Descripción de la línea..." />
+                </div>
+                
                 <div className="grid grid-cols-2 gap-3">
-                  <input type="number" step="0.01" value={it.cantidad} onChange={(e) => handleItemChange(idx, 'cantidad', e.target.value)} className="bg-white border border-slate-200 p-3 rounded-xl text-sm text-center font-bold outline-none" placeholder="Cant." />
-                  <div className="bg-emerald-50 border border-emerald-100 p-3 rounded-xl flex items-center">
-                    <span className="text-emerald-700 font-black mr-1">$</span>
-                    <input 
-                      type={focusField === `i-${idx}` ? "number" : "text"}
-                      value={focusField === `i-${idx}` ? it.total_item : formatCLP(it.total_item)}
-                      onChange={(e) => handleItemChange(idx, 'total_item', e.target.value)}
-                      onFocus={() => setFocusField(`i-${idx}`)} onBlur={() => setFocusField(null)}
-                      className="w-full bg-transparent text-right font-black text-emerald-800 text-sm font-mono outline-none" 
-                    />
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest px-1">Cantidad</label>
+                    <input type="number" step="0.01" value={it.cantidad} onChange={(e) => handleItemChange(idx, 'cantidad', e.target.value)} className="w-full bg-white border border-slate-200 p-3 rounded-xl text-sm text-center font-bold outline-none" placeholder="Cant." />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-black text-emerald-600 uppercase tracking-widest px-1">Neto Item (Sin IVA)</label>
+                    <div className="bg-emerald-50 border border-emerald-100 p-3 rounded-xl flex items-center h-[46px]">
+                      <span className="text-emerald-700 font-black mr-1">$</span>
+                      <input 
+                        type={focusField === `i-${idx}` ? "number" : "text"}
+                        value={focusField === `i-${idx}` ? it.total_item : formatCLP(it.total_item)}
+                        onChange={(e) => handleItemChange(idx, 'total_item', e.target.value)}
+                        onFocus={() => setFocusField(`i-${idx}`)} onBlur={() => setFocusField(null)}
+                        className="w-full bg-transparent text-right font-black text-emerald-800 text-sm font-mono outline-none" 
+                      />
+                    </div>
                   </div>
                 </div>
                 {formData.items.length > 1 && (
@@ -902,8 +972,8 @@ function InvoiceForm({ supabase, onSuccess, invoiceToEdit, onShowConfirm }) {
 
         <div className="bg-slate-900 p-8 lg:p-12 rounded-[2.5rem] grid grid-cols-1 md:grid-cols-3 gap-6 shadow-2xl relative overflow-hidden">
           <div className="absolute -top-10 -right-10 w-48 h-48 bg-blue-600 opacity-10 blur-[80px]"></div>
-          <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block text-center md:text-left leading-none">Neto</label><input name="total_bruto" type={focusField === 'neto' ? "number" : "text"} value={focusField === 'neto' ? formData.total_bruto : formatCLP(formData.total_bruto)} onChange={handleGeneralChange} onFocus={() => setFocusField('neto')} onBlur={() => setFocusField(null)} className={`w-full bg-white/5 border border-white/10 rounded-xl p-4 font-black text-xl text-white font-mono text-center md:text-left outline-none ${hasItems ? 'opacity-40 pointer-events-none' : ''}`} required readOnly={hasItems} /></div>
-          <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block text-center md:text-left leading-none">IVA (19%)</label><input name="iva" type={focusField === 'iva' ? "number" : "text"} value={focusField === 'iva' ? formData.iva : formatCLP(formData.iva)} onChange={handleGeneralChange} onFocus={() => setFocusField('iva')} onBlur={() => setFocusField(null)} className="w-full bg-white/5 border border-white/10 rounded-xl p-4 font-black text-xl text-blue-400 font-mono text-center md:text-left outline-none" /></div>
+          <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block text-center md:text-left leading-none px-1">Total Neto (Sumatoria)</label><input name="total_bruto" type={focusField === 'neto' ? "number" : "text"} value={focusField === 'neto' ? formData.total_bruto : formatCLP(formData.total_bruto)} onChange={handleGeneralChange} onFocus={() => setFocusField('neto')} onBlur={() => setFocusField(null)} className={`w-full bg-white/5 border border-white/10 rounded-xl p-4 font-black text-xl text-white font-mono text-center md:text-left outline-none ${hasItems ? 'opacity-40 pointer-events-none' : ''}`} required readOnly={hasItems} /></div>
+          <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block text-center md:text-left leading-none px-1">Impuesto IVA (19%)</label><input name="iva" type={focusField === 'iva' ? "number" : "text"} value={focusField === 'iva' ? formData.iva : formatCLP(formData.iva)} onChange={handleGeneralChange} onFocus={() => setFocusField('iva')} onBlur={() => setFocusField(null)} className="w-full bg-white/5 border border-white/10 rounded-xl p-4 font-black text-xl text-blue-400 font-mono text-center md:text-left outline-none" /></div>
           <div className="flex flex-col justify-center pt-2 md:pt-6"><div className="bg-blue-600 p-6 rounded-2xl text-center md:text-right font-mono text-3xl xl:text-4xl font-black text-white leading-none shadow-3xl shadow-blue-900/40 border border-white/10 tracking-tighter">${formatCLP(formData.total_a_pagar)}</div></div>
         </div>
 
