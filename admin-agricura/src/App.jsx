@@ -974,7 +974,7 @@ function InvoiceForm({ supabase, onSuccess, invoiceToEdit, onShowConfirm }) {
           <div className="absolute -top-10 -right-10 w-48 h-48 bg-blue-600 opacity-10 blur-[80px]"></div>
           <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block text-center md:text-left leading-none px-1">Total Neto (Sumatoria)</label><input name="total_bruto" type={focusField === 'neto' ? "number" : "text"} value={focusField === 'neto' ? formData.total_bruto : formatCLP(formData.total_bruto)} onChange={handleGeneralChange} onFocus={() => setFocusField('neto')} onBlur={() => setFocusField(null)} className={`w-full bg-white/5 border border-white/10 rounded-xl p-4 font-black text-xl text-white font-mono text-center md:text-left outline-none ${hasItems ? 'opacity-40 pointer-events-none' : ''}`} required readOnly={hasItems} /></div>
           <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block text-center md:text-left leading-none px-1">Impuesto IVA (19%)</label><input name="iva" type={focusField === 'iva' ? "number" : "text"} value={focusField === 'iva' ? formData.iva : formatCLP(formData.iva)} onChange={handleGeneralChange} onFocus={() => setFocusField('iva')} onBlur={() => setFocusField(null)} className="w-full bg-white/5 border border-white/10 rounded-xl p-4 font-black text-xl text-blue-400 font-mono text-center md:text-left outline-none" /></div>
-          <div className="flex flex-col justify-center pt-2 md:pt-6"><div className="bg-blue-600 p-6 rounded-2xl text-center md:text-right font-mono text-3xl xl:text-4xl font-black text-white leading-none shadow-3xl shadow-blue-900/40 border border-white/10 tracking-tighter">${formatCLP(formData.total_a_pagar)}</div></div>
+          <div className="flex flex-col justify-center pt-2 md:pt-6"><div className="bg-blue-600 p-6 rounded-2xl text-center md:text-right font-mono text-xl xl:text-xl font-black text-white leading-none shadow-3xl shadow-blue-900/40 border border-white/10 tracking-tighter">${formatCLP(formData.total_a_pagar)}</div></div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -984,7 +984,7 @@ function InvoiceForm({ supabase, onSuccess, invoiceToEdit, onShowConfirm }) {
 
         <div className="flex flex-col md:flex-row justify-end gap-3 pt-6">
           <button type="button" onClick={onSuccess} className="w-full md:w-auto px-8 py-3.5 text-xs font-black uppercase text-slate-400 tracking-widest hover:text-slate-600 transition-all rounded-xl order-2 md:order-1">Cancelar</button>
-          <button type="submit" disabled={loading} className="w-full md:w-auto px-12 bg-blue-600 text-white font-black py-4.5 rounded-xl uppercase tracking-widest text-[11px] shadow-xl shadow-blue-200 active:scale-95 transition-all hover:bg-blue-700 order-1 md:order-2">{loading ? 'Procesando...' : 'Guardar Documento'}</button>
+          <button type="submit" disabled={loading} className="w-full px-12 py-4 bg-blue-600 text-white font-black rounded-xl uppercase tracking-widest text-[11px] shadow-xl shadow-blue-200 active:scale-95 transition-all hover:bg-blue-700 order-1 md:order-2">{loading ? 'Procesando...' : 'Guardar Documento'}</button>
         </div>
       </form>
     </div>
