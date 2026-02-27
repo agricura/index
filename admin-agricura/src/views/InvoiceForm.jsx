@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChevronLeft, Package, PlusCircle, MinusCircle } from 'lucide-react';
+import DateInput from '../components/DateInput';
+import SelectInput from '../components/SelectInput';
 import { formatCLP } from '../utils/formatters';
 
 function InvoiceForm({ supabase, onSuccess, invoiceToEdit, onShowConfirm }) {
@@ -22,6 +24,19 @@ function InvoiceForm({ supabase, onSuccess, invoiceToEdit, onShowConfirm }) {
   });
 
   const [focusField, setFocusField] = useState(null);
+  const [tipoOptions, setTipoOptions] = useState(['Factura', 'Boleta', 'Nota de Crédito', 'Nota de Débito', 'Otro']);
+
+  useEffect(() => {
+    supabase
+      .from('invoices')
+      .select('tipo_doc')
+      .then(({ data }) => {
+        if (data) {
+          const unique = [...new Set(data.map((r) => r.tipo_doc).filter(Boolean))].sort();
+          if (unique.length > 0) setTipoOptions([...unique.filter((o) => o !== 'Otro'), 'Otro']);
+        }
+      });
+  }, []);
 
   const calculateTotals = (items, netoManual = null) => {
     const neto =
@@ -88,7 +103,22 @@ function InvoiceForm({ supabase, onSuccess, invoiceToEdit, onShowConfirm }) {
         {/* SECCIÓN 1: PROVEEDOR */}
         <div className="space-y-4">
           <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide block px-1">Proveedor y Datos Básicos</label>
-          <input name="proveedor" value={formData.proveedor} onChange={handleGeneralChange} className="w-full bg-slate-50 border border-slate-200 hover:border-slate-300 px-4 py-3 rounded-lg font-semibold text-base focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 transition-all outline-none text-slate-900 placeholder:text-slate-400 placeholder:font-normal" placeholder="Nombre de la Empresa o Proveedor" required />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="md:col-span-2 space-y-1.5">
+              <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide px-1">Nombre del Proveedor</label>
+              <input name="proveedor" value={formData.proveedor} onChange={handleGeneralChange} className="w-full bg-slate-50 border border-slate-200 hover:border-slate-300 px-4 py-2.5 rounded-lg font-semibold text-sm focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 transition-all outline-none text-slate-900 placeholder:text-slate-400 placeholder:font-normal" placeholder="Nombre de la Empresa o Proveedor" required />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide px-1">Tipo de Documento</label>
+              <SelectInput
+                name="tipo_doc"
+                options={tipoOptions}
+                value={formData.tipo_doc}
+                onChange={handleGeneralChange}
+                required
+              />
+            </div>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-5">
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide px-1">Folio / Número</label>
@@ -96,11 +126,11 @@ function InvoiceForm({ supabase, onSuccess, invoiceToEdit, onShowConfirm }) {
             </div>
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide px-1">Fecha Emisión</label>
-              <input type="date" name="fecha_emision" value={formData.fecha_emision} onChange={handleGeneralChange} className="w-full bg-slate-50 border border-slate-200 hover:border-slate-300 px-4 py-2.5 rounded-lg font-medium text-sm text-slate-800 outline-none transition-all focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10" required />
+              <DateInput value={formData.fecha_emision} onChange={handleGeneralChange} name="fecha_emision" required className="w-full bg-slate-50 border border-slate-200 hover:border-slate-300 px-4 py-2.5 rounded-lg font-medium text-sm text-slate-800 outline-none transition-all focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10" />
             </div>
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide px-1">Vencimiento</label>
-              <input type="date" name="fecha_venc" value={formData.fecha_venc} onChange={handleGeneralChange} className="w-full bg-slate-50 border border-slate-200 hover:border-slate-300 px-4 py-2.5 rounded-lg font-medium text-sm text-slate-800 outline-none transition-all focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10" required />
+              <DateInput value={formData.fecha_venc} onChange={handleGeneralChange} name="fecha_venc" required className="w-full bg-slate-50 border border-slate-200 hover:border-slate-300 px-4 py-2.5 rounded-lg font-medium text-sm text-slate-800 outline-none transition-all focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10" />
             </div>
           </div>
         </div>

@@ -29,7 +29,9 @@ const MultiSelect = ({ label, options, selectedValues, onChange, placeholder }) 
         dropdownRef.current && !dropdownRef.current.contains(event.target)
       ) setIsOpen(false);
     };
-    const handleScroll = () => { if (isOpen) setIsOpen(false); };
+    const handleScroll = (event) => {
+      if (isOpen && dropdownRef.current && !dropdownRef.current.contains(event.target)) setIsOpen(false);
+    };
     document.addEventListener('mousedown', handleClickOutside);
     document.addEventListener('scroll', handleScroll, true);
     return () => {

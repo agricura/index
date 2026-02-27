@@ -113,7 +113,6 @@ function Dashboard({ supabase, onEdit, onViewDetail, onShowConfirm }) {
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-4 px-1">
         <div>
           <h2 className="text-2xl lg:text-3xl font-bold text-slate-900 tracking-tight">Panel de Control</h2>
-          <p className="text-slate-500 mt-1.5 text-sm font-medium">Mostrando {filteredInvoices.length} de {invoices.length} documentos</p>
         </div>
       </header>
 
@@ -132,7 +131,7 @@ function Dashboard({ supabase, onEdit, onViewDetail, onShowConfirm }) {
             <div className="min-w-0 flex-1">
               <p className="text-xs font-medium text-slate-400 mb-0.5 truncate">{card.label}</p>
               <p className={`text-lg lg:text-xl font-bold truncate ${card.color === 'emerald' ? 'text-emerald-600' : card.color === 'rose' ? 'text-rose-600' : 'text-slate-800'}`}>
-                {card.text ? card.val : card.raw ? card.val : `$${formatCLP(card.val)}`}
+                {card.text ? card.val : card.raw ? formatCLP(card.val) : `$${formatCLP(card.val)}`}
               </p>
             </div>
           </div>
@@ -198,6 +197,9 @@ function Dashboard({ supabase, onEdit, onViewDetail, onShowConfirm }) {
 
       {/* TABLA */}
       <div className="bg-white rounded-xl border border-slate-200/60 flex flex-col flex-1 overflow-hidden min-h-[450px]">
+        <div className="px-6 py-3.5 border-b border-slate-100 flex items-center justify-between shrink-0">
+          <p className="text-sm font-semibold text-slate-500">Mostrando <span className="text-slate-800">{filteredInvoices.length}</span> de <span className="text-slate-800">{invoices.length}</span> documentos</p>
+        </div>
         {/* Vista Escritorio */}
         <div className="hidden lg:block overflow-x-auto flex-1 scrollbar-hide">
           <table className="w-full text-left border-collapse">
