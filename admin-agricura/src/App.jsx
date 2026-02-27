@@ -89,32 +89,32 @@ export default function App() {
           <h1 className="text-base font-bold tracking-[0.15em] uppercase">AGRICURA</h1>
         </div>
 
-        <nav className="flex-1 px-3 space-y-1 mt-16 lg:mt-3 overflow-y-auto scrollbar-hide py-3">
-          <button
-            onClick={() => { setCurrentView('dashboard'); setIsSidebarOpen(false); }}
-            className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg transition-all duration-200 text-sm font-medium ${currentView === 'dashboard' ? 'bg-blue-600 shadow-md shadow-blue-600/20 text-white' : 'text-slate-400 hover:bg-white/5 hover:text-white'}`}
-          >
-            <LayoutDashboard size={18} /><span>Panel Contable</span>
-          </button>
+        <nav className="flex-1 px-3 mt-16 lg:mt-3 overflow-y-auto scrollbar-hide py-3 space-y-1">
 
-          <div className="pt-5 px-1 pb-2">
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 px-2.5">Herramientas</p>
+          <div className="px-1 pb-1">
+            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5 px-2.5">Datos Agricura</p>
+            <button
+              onClick={() => { setCurrentView('dashboard'); setIsSidebarOpen(false); }}
+              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg transition-all duration-200 text-sm font-medium ${currentView === 'dashboard' ? 'bg-blue-600 shadow-md shadow-blue-600/20 text-white' : 'text-slate-400 hover:bg-white/5 hover:text-white'}`}
+            >
+              <LayoutDashboard size={18} /><span>Panel Contable</span>
+            </button>
             <button
               onClick={() => { setCurrentView('form'); setInvoiceToEdit(null); setIsSidebarOpen(false); }}
               className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg transition-all duration-200 text-sm font-medium ${currentView === 'form' ? 'bg-blue-600 shadow-md shadow-blue-600/20 text-white' : 'text-slate-400 hover:bg-white/5 hover:text-white'}`}
             >
-              <Plus size={20} /><span>Registrar Documento</span>
+              <Plus size={18} /><span>Registrar Documento</span>
             </button>
             <button
               onClick={() => { setIsImporting(true); setIsSidebarOpen(false); }}
               className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-emerald-400 hover:bg-emerald-500/10 transition-all active:scale-[0.98] text-sm font-medium"
             >
-              <FileSpreadsheet size={20} /><span>Importar Datos</span>
+              <FileSpreadsheet size={18} /><span>Importar Datos</span>
             </button>
           </div>
 
-          <div className="pt-3 px-1 pb-2">
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 px-2.5">SII</p>
+          <div className="pt-3 px-1 pb-1">
+            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5 px-2.5">SII</p>
             <button
               onClick={() => { setCurrentView('sii'); setIsSidebarOpen(false); }}
               className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg transition-all duration-200 text-sm font-medium ${currentView === 'sii' ? 'bg-violet-600 shadow-md shadow-violet-600/20 text-white' : 'text-slate-400 hover:bg-white/5 hover:text-white'}`}
@@ -122,6 +122,7 @@ export default function App() {
               <FileText size={18} /><span>Data SII</span>
             </button>
           </div>
+
         </nav>
 
         <div className="p-4 bg-slate-950/50 border-t border-white/5 flex flex-col gap-3 shrink-0">
