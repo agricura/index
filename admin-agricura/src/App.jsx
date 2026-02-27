@@ -1,9 +1,10 @@
 ﻿import React, { useState, useEffect } from 'react';
-import { LayoutDashboard, Menu, X, LogOut, Plus, FileSpreadsheet } from 'lucide-react';
+import { LayoutDashboard, Menu, X, LogOut, Plus, FileSpreadsheet, FileText } from 'lucide-react';
 import { loadScript, supabaseUrl, supabaseAnonKey } from './lib/supabase';
 import Auth from './views/Auth';
 import Dashboard from './views/Dashboard';
 import InvoiceForm from './views/InvoiceForm';
+import SIIView from './views/SIIView';
 import ConfirmModal from './components/ConfirmModal';
 import InvoiceDetailModal from './components/InvoiceDetailModal';
 import ExcelImportModal from './components/ExcelImportModal';
@@ -111,6 +112,16 @@ export default function App() {
               <FileSpreadsheet size={20} /><span>Importar Datos</span>
             </button>
           </div>
+
+          <div className="pt-3 px-1 pb-2">
+            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 px-2.5">SII</p>
+            <button
+              onClick={() => { setCurrentView('sii'); setIsSidebarOpen(false); }}
+              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg transition-all duration-200 text-sm font-medium ${currentView === 'sii' ? 'bg-violet-600 shadow-md shadow-violet-600/20 text-white' : 'text-slate-400 hover:bg-white/5 hover:text-white'}`}
+            >
+              <FileText size={18} /><span>Data SII</span>
+            </button>
+          </div>
         </nav>
 
         <div className="p-4 bg-slate-950/50 border-t border-white/5 flex flex-col gap-3 shrink-0">
@@ -138,18 +149,25 @@ export default function App() {
 
       <main className="flex-1 overflow-auto h-full relative bg-slate-50 flex flex-col">
         <div className="flex-1 w-full max-w-[1600px] mx-auto p-4 lg:p-8">
-          {currentView === 'dashboard' ? (
+          {currentView === 'dashboard' && (
             <Dashboard
               supabase={supabaseClient}
               onEdit={(inv) => { setInvoiceToEdit(inv); setCurrentView('form'); }}
               onViewDetail={(inv) => setViewingInvoice(inv)}
               onShowConfirm={(cfg) => setConfirmModal({ ...cfg, isOpen: true })}
             />
-          ) : (
+          )}
+          {currentView === 'form' && (
             <InvoiceForm
               supabase={supabaseClient}
               invoiceToEdit={invoiceToEdit}
               onSuccess={() => { setCurrentView('dashboard'); setInvoiceToEdit(null); }}
+              onShowConfirm={(cfg) => setConfirmModal({ ...cfg, isOpen: true })}
+            />
+          )}
+          {currentView === 'sii' && (
+            <SIIView
+              supabase={supabaseClient}
               onShowConfirm={(cfg) => setConfirmModal({ ...cfg, isOpen: true })}
             />
           )}

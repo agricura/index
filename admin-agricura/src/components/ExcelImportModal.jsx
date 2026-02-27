@@ -21,7 +21,19 @@ const ExcelImportModal = ({ onClose, onImported, supabase }) => {
 
         if (jsonData.length === 0) throw new Error('Archivo vacío');
 
-        const grouped = jsonData.reduce((acc, curr) => {
+        // Deduplicate raw rows by proveedor+folio+detalle before grouping
+        const seenRows = new Set();
+        const dedupedData = jsonData.filter(curr => {
+          const provKey = (curr.proveedor || curr.Proveedor || '').toString().trim().toUpperCase();
+          const folioKey = (curr.no_documento || curr.folio || '').toString().trim();
+          const detalleKey = (curr.detalle || curr.descripcion || '').toString().trim();
+          const rowKey = `${provKey}|${folioKey}|${detalleKey}|${curr.cantidad ?? ''}|${curr.total_items ?? curr.total_linea ?? ''}`;
+          if (seenRows.has(rowKey)) return false;
+          seenRows.add(rowKey);
+          return true;
+        });
+
+        const grouped = dedupedData.reduce((acc, curr) => {
           const provKey = (curr.proveedor || curr.Proveedor || '').toString().trim().toUpperCase();
           const folioKey = (curr.no_documento || curr.folio || '').toString().trim();
           if (!provKey || !folioKey) return acc;
