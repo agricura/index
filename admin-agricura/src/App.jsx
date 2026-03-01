@@ -167,6 +167,7 @@ export default function App() {
             <SIIView
               supabase={supabaseClient}
               onShowConfirm={(cfg) => setConfirmModal({ ...cfg, isOpen: true })}
+              onViewDetail={(inv) => setViewingInvoice(inv)}
             />
           )}
         </div>

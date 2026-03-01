@@ -154,11 +154,16 @@ function Dashboard({ supabase, onEdit, onViewDetail, onShowConfirm }) {
     <div className="space-y-6 flex flex-col min-h-full">
 
       {/* HEADER */}
-      <header className="flex flex-col md:flex-row md:items-end justify-between gap-4 px-1">
-        <div>
-          <h2 className="text-2xl lg:text-3xl font-bold text-slate-900 tracking-tight">Panel de Control</h2>
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+        <div className="flex-1">
+          <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+            <FileText size={20} className="text-blue-600" /> Datos Agricura
+          </h2>
+          <p className="text-sm text-slate-400 mt-0.5">
+            {invoices.length > 0 ? `${invoices.length} documentos cargados` : 'Sin datos cargados aún'}
+          </p>
         </div>
-      </header>
+      </div>
 
       {/* STATS CARDS */}
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 lg:gap-4">

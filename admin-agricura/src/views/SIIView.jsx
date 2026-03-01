@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { FileText, Settings2, Search, RefreshCw, Upload, X, ChevronUp, ChevronDown, Eye, EyeOff, Filter, ChevronLeft, ChevronRight, AlertTriangle } from 'lucide-react';
+import { FileText, Settings2, Search, RefreshCw, Upload, X, ChevronUp, ChevronDown, Eye, EyeOff, Filter, ChevronLeft, ChevronRight, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import SIIImportModal from '../components/SIIImportModal';
 
 const PAGE_SIZE = 20;
@@ -88,7 +88,7 @@ const fmtValue = (col, v) => {
 
 const EMPTY_FILTERS = { tipoCompra: '', tipoDoc: '', fechaDesde: '', fechaHasta: '', razonSocial: '' };
 
-export default function SIIView({ supabase, onShowConfirm }) {
+export default function SIIView({ supabase, onShowConfirm, onViewDetail }) {
   const [records, setRecords]           = useState([]);
   const [loading, setLoading]           = useState(true);
   const [search, setSearch]             = useState('');
@@ -96,6 +96,7 @@ export default function SIIView({ supabase, onShowConfirm }) {
   const [showColPanel, setShowColPanel]     = useState(false);
   const [showFilters, setShowFilters]       = useState(false);
   const [showDuplicates, setShowDuplicates] = useState(false);
+  const [invoiceMap, setInvoiceMap]         = useState(new Map());
   const [filters, setFilters]           = useState(EMPTY_FILTERS);
   const [sortKey, setSortKey]           = useState('fecha_docto');
   const [sortDir, setSortDir]           = useState('desc');
@@ -138,7 +139,25 @@ export default function SIIView({ supabase, onShowConfirm }) {
     setLoading(false);
   };
 
-  useEffect(() => { fetchData(); }, []);
+  const fetchInvoiceKeys = async () => {
+    let from = 0;
+    const map = new Map();
+    while (true) {
+      const { data, error } = await supabase
+        .from('invoices')
+        .select('*')
+        .range(from, from + 999);
+      if (error || !data) break;
+      data.forEach(r => {
+        if (r.rut && r.folio) map.set(`${String(r.rut).trim()}|${String(r.folio).trim()}`, r);
+      });
+      if (data.length < 1000) break;
+      from += 1000;
+    }
+    setInvoiceMap(map);
+  };
+
+  useEffect(() => { fetchData(); fetchInvoiceKeys(); }, []);
   useEffect(() => { setPage(1); }, [search, filters]);
 
   const displayCols = ALL_COLUMNS.filter(c => visibleCols.includes(c.key));
@@ -270,7 +289,7 @@ export default function SIIView({ supabase, onShowConfirm }) {
       <div className="flex flex-col sm:flex-row sm:items-center gap-3">
         <div className="flex-1">
           <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-            <FileText size={20} className="text-violet-600" /> Data SII
+            <FileText size={20} className="text-violet-600" /> Datos SII
           </h2>
           <p className="text-sm text-slate-400 mt-0.5">
             {records.length > 0 ? `${records.length} registros importados` : 'Sin datos importados aún'}
@@ -477,6 +496,9 @@ export default function SIIView({ supabase, onShowConfirm }) {
               <table className="w-full text-sm min-w-[600px]">
                 <thead>
                   <tr className="bg-slate-50 border-b border-slate-100">
+                    <th className="px-4 py-3 text-center text-xs font-semibold text-slate-400 uppercase tracking-wider whitespace-nowrap w-10">
+                      Agricura
+                    </th>
                     {displayCols.map(col => (
                       <th key={col.key} onClick={() => handleSort(col.key)}
                         className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider cursor-pointer hover:text-slate-700 whitespace-nowrap select-none">
@@ -492,20 +514,29 @@ export default function SIIView({ supabase, onShowConfirm }) {
                 </thead>
                 <tbody className="divide-y divide-slate-50">
                   {pageRows.length === 0 ? (
-                    <tr><td colSpan={displayCols.length} className="px-4 py-12 text-center text-sm text-slate-400">No hay registros que coincidan con los filtros aplicados.</td></tr>
-                  ) : pageRows.map((row, idx) => (
+                    <tr><td colSpan={displayCols.length + 1} className="px-4 py-12 text-center text-sm text-slate-400">No hay registros que coincidan con los filtros aplicados.</td></tr>
+                  ) : pageRows.map((row, idx) => {
+                    const matchKey = `${String(row.rut_proveedor || '').trim()}|${String(row.folio || '').trim()}`;
+                    const matchedInvoice = invoiceMap.get(matchKey);
+                    return (
                     <tr key={row.id || idx} className="hover:bg-slate-50/70 transition-colors">
+                      <td className="px-4 py-2.5 text-center">
+                        {matchedInvoice
+                          ? <CheckCircle2 size={15} className="text-emerald-500 mx-auto cursor-pointer hover:text-emerald-600 active:scale-90 transition-transform" onClick={() => onViewDetail?.(matchedInvoice)} />
+                          : <span className="w-3.5 h-3.5 rounded-full border border-slate-200 inline-block" />}
+                      </td>
                       {displayCols.map(col => (
                         <td key={col.key} className={`px-4 py-2.5 whitespace-nowrap text-sm ${col.key === 'folio' ? 'font-semibold text-violet-700' : col.type === 'money' ? 'text-right font-mono text-slate-700 tabular-nums' : 'text-slate-600'}`}>
                           {fmtValue(col, row[col.key])}
                         </td>
                       ))}
                     </tr>
-                  ))}
+                  );})}
                 </tbody>
                 {Object.keys(totals).length > 0 && filtered.length > 0 && (
                   <tfoot>
                     <tr className="bg-violet-50 border-t-2 border-violet-100 font-semibold">
+                      <td className="px-4 py-2.5" />
                       {displayCols.map((col, i) => (
                         <td key={col.key} className={`px-4 py-2.5 text-xs whitespace-nowrap ${col.type === 'money' ? 'text-right font-mono text-violet-800 tabular-nums' : ''}`}>
                           {i === 0
