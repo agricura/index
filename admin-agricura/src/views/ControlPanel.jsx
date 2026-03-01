@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import {
   LayoutDashboard, CheckCircle, Clock, FileText,
-  TrendingUp, AlertTriangle, BarChart3, Loader2,
+  TrendingUp, AlertTriangle, BarChart3, Loader2, Calendar, X,
 } from 'lucide-react';
-import { formatCLP } from '../utils/formatters';
+import { formatCLP, formatDate } from '../utils/formatters';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const Skeleton = () => (
@@ -51,6 +51,7 @@ export default function ControlPanel({ supabase }) {
   const [siiRecords,  setSiiRecords]  = useState([]);
   const [loadingInv,  setLoadingInv]  = useState(true);
   const [loadingSII,  setLoadingSII]  = useState(true);
+  const [weeklyModal, setWeeklyModal] = useState(null); // null | bucket object
 
   useEffect(() => {
     const fetchAll = async (table, setter, setLoading) => {
@@ -87,16 +88,39 @@ export default function ControlPanel({ supabase }) {
       byTipo[k].total += Number(inv.total_a_pagar || 0);
     });
 
-    // Upcoming: pending docs sorted by fecha_venc asc (soonest first), top 8
+    // Upcoming: pending docs sorted by fecha_venc asc (soonest first), top 6
     const upcoming = invoices
       .filter(i => i.status_pago === 'PENDIENTE' && (i.fecha_venc ?? ''))
       .sort((a, b) => (a.fecha_venc ?? '').localeCompare(b.fecha_venc ?? ''))
-      .slice(0, 8);
+      .slice(0, 6);
 
-    // Recent 5
+    // Recent 4
     const recent = [...invoices]
       .sort((a, b) => (b.fecha_emision ?? '').localeCompare(a.fecha_emision ?? ''))
-      .slice(0, 5);
+      .slice(0, 4);
+
+    // Weekly buckets for pending non-overdue
+    const addDays = (str, n) => {
+      const d = new Date(str); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().split('T')[0];
+    };
+    const d7  = addDays(todayStr, 7);
+    const d14 = addDays(todayStr, 14);
+    const d21 = addDays(todayStr, 21);
+    const d28 = addDays(todayStr, 28);
+    const weeklyBuckets = [
+      { label: 'Próximos 7 días',  range: `Hasta ${d7}`,   from: todayStr, to: d7,  count: 0, total: 0, color: 'rose',   docs: [] },
+      { label: '8 – 14 días',      range: `Hasta ${d14}`,  from: d7,       to: d14, count: 0, total: 0, color: 'amber',  docs: [] },
+      { label: '15 – 21 días',     range: `Hasta ${d21}`,  from: d14,      to: d21, count: 0, total: 0, color: 'yellow', docs: [] },
+      { label: '22 – 28 días',     range: `Hasta ${d28}`,  from: d21,      to: d28, count: 0, total: 0, color: 'slate',  docs: [] },
+    ];
+    invoices
+      .filter(i => i.status_pago === 'PENDIENTE' && (i.fecha_venc ?? '') >= todayStr)
+      .forEach(i => {
+        const fv = i.fecha_venc ?? '';
+        const b = weeklyBuckets.find(bk => fv >= bk.from && fv <= bk.to);
+        if (b) { b.count++; b.total += Number(i.total_a_pagar || 0); b.docs.push(i); }
+      });
+    weeklyBuckets.forEach(b => b.docs.sort((a, z) => (a.fecha_venc ?? '').localeCompare(z.fecha_venc ?? '')));
 
     return {
       totalPending: sum(pendList,    'total_a_pagar'),
@@ -105,7 +129,7 @@ export default function ControlPanel({ supabase }) {
       countPending: pendList.length,
       countOverdue: overdueList.length,
       countPaid:    paidList.length,
-      byTipo, upcoming, recent,
+      byTipo, upcoming, recent, weeklyBuckets,
     };
   }, [invoices, todayStr]);
 
@@ -228,7 +252,7 @@ export default function ControlPanel({ supabase }) {
                           <td className="px-5 py-3 whitespace-nowrap">
                             <p className={`font-mono text-xs font-semibold ${
                               isOverdue ? 'text-rose-600' : isImminent ? 'text-amber-600' : 'text-slate-600'
-                            }`}>{inv.fecha_venc ?? '—'}</p>
+                            }`}>{inv.fecha_venc ? formatDate(inv.fecha_venc) : '—'}</p>
                             {daysLeft !== null && (
                               <p className={`text-xs mt-0.5 font-medium ${
                                 isOverdue ? 'text-rose-400' : isImminent ? 'text-amber-400' : 'text-slate-400'
@@ -256,37 +280,94 @@ export default function ControlPanel({ supabase }) {
             </div>
           )}
 
-          {/* Recent Agricura docs */}
-          {!loadingInv && agriStats.recent.length > 0 && (
-            <div className="bg-white border border-slate-200/60 rounded-xl overflow-hidden">
-              <div className="px-5 py-4 border-b border-slate-100 flex items-center gap-2">
-                <FileText size={15} className="text-blue-500" />
-                <h4 className="text-sm font-bold text-slate-700">Últimos Documentos</h4>
+          {/* RIGHT COLUMN: weekly buckets + últimos documentos */}
+          {!loadingInv && (
+            <div className="flex flex-col gap-5">
+
+              {/* Vencimientos por Semana */}
+              <div className="bg-white border border-slate-200/60 rounded-xl overflow-hidden">
+                <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Calendar size={15} className="text-blue-500" />
+                    <h4 className="text-sm font-bold text-slate-700">Vencimientos por Semana</h4>
+                  </div>
+                  <span className="text-xs text-slate-400 font-medium">próximos 28 días</span>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead className="bg-slate-50/60 text-xs text-slate-400 uppercase tracking-wider font-semibold">
+                      <tr>
+                        <th className="px-5 py-3 text-left">Período</th>
+                        <th className="px-5 py-3 text-right">Docs</th>
+                        <th className="px-5 py-3 text-right">Total</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {agriStats.weeklyBuckets.map(b => {
+                        const colorMap = {
+                          rose:   { badge: 'bg-rose-50 text-rose-600 border-rose-100',     mono: 'text-rose-600',   row: 'hover:bg-rose-50/40'   },
+                          amber:  { badge: 'bg-amber-50 text-amber-600 border-amber-100',   mono: 'text-amber-600',  row: 'hover:bg-amber-50/40'  },
+                          yellow: { badge: 'bg-yellow-50 text-yellow-700 border-yellow-100', mono: 'text-yellow-700', row: 'hover:bg-yellow-50/40' },
+                          slate:  { badge: 'bg-slate-100 text-slate-600 border-slate-200',   mono: 'text-slate-600',  row: 'hover:bg-slate-50/60'  },
+                        };
+                        const c = colorMap[b.color];
+                        const clickable = b.count > 0;
+                        return (
+                          <tr
+                            key={b.label}
+                            onClick={() => clickable && setWeeklyModal(b)}
+                            className={`transition-colors ${c.row} ${clickable ? 'cursor-pointer' : 'cursor-default'}`}
+                          >
+                            <td className="px-5 py-3">
+                              <span className={`text-xs font-semibold px-2.5 py-1 rounded-lg border ${c.badge}`}>{b.label}</span>
+                            </td>
+                            <td className="px-5 py-3 text-right font-mono text-slate-600 text-xs font-semibold">
+                              {b.count > 0 ? b.count : <span className="text-slate-300">—</span>}
+                            </td>
+                            <td className={`px-5 py-3 text-right font-mono font-bold text-xs ${b.count > 0 ? c.mono : 'text-slate-300'}`}>
+                              {b.count > 0 ? `$${formatCLP(b.total)}` : '—'}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
               </div>
-              <div className="divide-y divide-slate-100">
-                {agriStats.recent.map(inv => {
-                  const isOverdue = inv.status_pago === 'PENDIENTE' && (inv.fecha_venc ?? '') < todayStr;
-                  return (
-                    <div key={inv.id} className="px-5 py-3 flex items-center justify-between gap-3 hover:bg-slate-50/40 transition-colors">
-                      <div className="min-w-0">
-                        <p className="text-sm font-semibold text-slate-800 truncate">{inv.proveedor}</p>
-                        <div className="flex items-center gap-2 mt-0.5">
-                          <span className="font-mono text-xs text-slate-400">#{inv.folio}</span>
-                          <span className="text-xs text-slate-400">{inv.fecha_emision}</span>
+
+              {/* Últimos Documentos */}
+              {agriStats.recent.length > 0 && (
+                <div className="bg-white border border-slate-200/60 rounded-xl overflow-hidden">
+                  <div className="px-5 py-4 border-b border-slate-100 flex items-center gap-2">
+                    <FileText size={15} className="text-blue-500" />
+                    <h4 className="text-sm font-bold text-slate-700">Últimos Documentos</h4>
+                  </div>
+                  <div className="divide-y divide-slate-100">
+                    {agriStats.recent.map(inv => {
+                      const isOverdue = inv.status_pago === 'PENDIENTE' && (inv.fecha_venc ?? '') < todayStr;
+                      return (
+                        <div key={inv.id} className="px-5 py-2.5 flex items-center justify-between gap-3 hover:bg-slate-50/40 transition-colors">
+                          <div className="min-w-0">
+                            <p className="text-xs font-semibold text-slate-800 truncate">{inv.proveedor}</p>
+                            <div className="flex items-center gap-2 mt-0.5">
+                              <span className="font-mono text-xs text-slate-400">#{inv.folio}</span>
+                              <span className="text-xs text-slate-400">{formatDate(inv.fecha_emision)}</span>
+                            </div>
+                          </div>
+                          <div className="text-right shrink-0">
+                            <p className={`font-mono text-xs font-bold ${isOverdue ? 'text-rose-500' : inv.status_pago === 'PAGADO' ? 'text-emerald-600' : 'text-amber-600'}`}>
+                              ${formatCLP(inv.total_a_pagar)}
+                            </p>
+                            <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${isOverdue ? 'bg-rose-50 text-rose-600' : inv.status_pago === 'PAGADO' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>
+                              {isOverdue ? 'VENCIDA' : inv.status_pago}
+                            </span>
+                          </div>
                         </div>
-                      </div>
-                      <div className="text-right shrink-0">
-                        <p className={`font-mono text-sm font-bold ${isOverdue ? 'text-rose-500' : inv.status_pago === 'PAGADO' ? 'text-emerald-600' : 'text-amber-600'}`}>
-                          ${formatCLP(inv.total_a_pagar)}
-                        </p>
-                        <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${isOverdue ? 'bg-rose-50 text-rose-600' : inv.status_pago === 'PAGADO' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>
-                          {isOverdue ? 'VENCIDA' : inv.status_pago}
-                        </span>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -379,6 +460,95 @@ export default function ControlPanel({ supabase }) {
           )}
         </div>
       </section>
+
+      {/* ── Weekly bucket modal ───────────────────────────────────────────── */}
+      {weeklyModal && (
+        <div
+          className="fixed inset-0 z-[300] flex items-center justify-center bg-black/30 backdrop-blur-sm p-4 animate-in fade-in"
+          onClick={() => setWeeklyModal(null)}
+        >
+          <div
+            className="bg-white rounded-2xl shadow-2xl border border-slate-200/60 w-full max-w-2xl max-h-[80vh] flex flex-col overflow-hidden"
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 bg-blue-50 rounded-xl flex items-center justify-center">
+                  <Calendar size={17} className="text-blue-500" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900">{weeklyModal.label}</h3>
+                  <p className="text-xs text-slate-400 font-medium mt-0.5">
+                    {weeklyModal.count} documento{weeklyModal.count !== 1 ? 's' : ''} · Total:&nbsp;
+                    <span className="font-semibold text-slate-600">${formatCLP(weeklyModal.total)}</span>
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setWeeklyModal(null)}
+                className="p-2 bg-slate-50 hover:bg-slate-100 text-slate-400 rounded-lg transition-all active:scale-[0.97]"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            {/* Table */}
+            <div className="overflow-y-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-slate-50/80 text-xs text-slate-400 uppercase tracking-wider font-semibold sticky top-0">
+                  <tr>
+                    <th className="px-6 py-3 text-left">Proveedor</th>
+                    <th className="px-6 py-3 text-left">Vence</th>
+                    <th className="px-6 py-3 text-left">Centro</th>
+                    <th className="px-6 py-3 text-right">Monto</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {weeklyModal.docs.map(inv => {
+                    const daysLeft = inv.fecha_venc
+                      ? Math.ceil((new Date(inv.fecha_venc) - new Date(todayStr)) / 86400000)
+                      : null;
+                    const isToday = daysLeft === 0;
+                    return (
+                      <tr key={inv.id} className={`transition-colors ${isToday ? 'bg-rose-50/30 hover:bg-rose-50/50' : 'hover:bg-slate-50/50'}`}>
+                        <td className="px-6 py-3.5">
+                          <p className="font-semibold text-slate-800 text-xs truncate max-w-[180px]">{inv.proveedor}</p>
+                          <span className="font-mono text-xs text-slate-400">#{inv.folio}</span>
+                        </td>
+                        <td className="px-6 py-3.5 whitespace-nowrap">
+                          <p className={`font-mono text-xs font-semibold ${isToday ? 'text-rose-600' : 'text-slate-700'}`}>
+                            {formatDate(inv.fecha_venc)}
+                          </p>
+                          {daysLeft !== null && (
+                            <p className={`text-xs mt-0.5 font-medium ${isToday ? 'text-rose-400' : 'text-slate-400'}`}>
+                              {isToday ? 'Vence hoy' : `En ${daysLeft}d`}
+                            </p>
+                          )}
+                        </td>
+                        <td className="px-6 py-3.5">
+                          <span className="bg-slate-100 text-slate-600 text-xs px-2 py-0.5 rounded-md border border-slate-200 font-medium">
+                            {inv.centro_costo || 'N/A'}
+                          </span>
+                        </td>
+                        <td className="px-6 py-3.5 text-right">
+                          <span className="font-mono font-bold text-xs text-slate-700">${formatCLP(inv.total_a_pagar)}</span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Footer total */}
+            <div className="px-6 py-4 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between shrink-0">
+              <span className="text-xs text-slate-400 font-medium">{weeklyModal.count} documento{weeklyModal.count !== 1 ? 's' : ''} pendientes</span>
+              <span className="font-mono font-bold text-sm text-slate-800">${formatCLP(weeklyModal.total)}</span>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Empty state */}
       {!loading && invoices.length === 0 && siiRecords.length === 0 && (

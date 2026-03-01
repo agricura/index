@@ -8,7 +8,7 @@ import {
 import MultiSelect from '../components/MultiSelect';
 import DateInput from '../components/DateInput';
 import MobileActionMenu from '../components/MobileActionMenu';
-import { formatCLP } from '../utils/formatters';
+import { formatCLP, formatDate } from '../utils/formatters';
 
 const DASH_COL_KEY = 'dashboard_visible_columns';
 
@@ -375,7 +375,7 @@ function Dashboard({ supabase, onEdit, onViewDetail, onShowConfirm }) {
 
                       if (col.key === 'fecha_venc') return (
                         <td key={col.key} className={`px-6 py-4 font-medium whitespace-nowrap ${isOverdue ? 'text-rose-600' : 'text-slate-600'}`}>
-                          {v || '—'}
+                          {v ? formatDate(v) : '—'}
                         </td>
                       );
 
@@ -394,7 +394,7 @@ function Dashboard({ supabase, onEdit, onViewDetail, onShowConfirm }) {
                       // Genérico: texto / fecha / número
                       return (
                         <td key={col.key} className="px-6 py-4 text-slate-600 whitespace-nowrap">
-                          {v !== null && v !== undefined && v !== '' ? String(v) : '—'}
+                          {v !== null && v !== undefined && v !== '' ? (col.type === 'date' ? formatDate(String(v)) : String(v)) : '—'}
                         </td>
                       );
                     })}
@@ -440,7 +440,7 @@ function Dashboard({ supabase, onEdit, onViewDetail, onShowConfirm }) {
                     inv.status_pago === 'PAGADO' ? 'text-emerald-600' :
                     Number(inv.total_a_pagar) < 0 ? 'text-rose-500' : 'text-amber-600'
                   }`}>${formatCLP(inv.total_a_pagar)}</p>
-                  <p className={`text-xs font-semibold mt-1 uppercase ${isOverdue ? 'text-rose-500' : 'text-slate-400'}`}>{inv.fecha_venc}</p>
+                  <p className={`text-xs font-semibold mt-1 uppercase ${isOverdue ? 'text-rose-500' : 'text-slate-400'}`}>{formatDate(inv.fecha_venc)}</p>
                 </div>
                 <div className="shrink-0 pl-1">
                   <MobileActionMenu

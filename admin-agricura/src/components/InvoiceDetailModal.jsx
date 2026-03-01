@@ -1,6 +1,6 @@
 import React from 'react';
 import { Package, X, Pencil } from 'lucide-react';
-import { formatCLP } from '../utils/formatters';
+import { formatCLP, formatDate } from '../utils/formatters';
 
 const InvoiceDetailModal = ({ invoice, onClose, onEdit }) => {
   if (!invoice) return null;
@@ -38,11 +38,11 @@ const InvoiceDetailModal = ({ invoice, onClose, onEdit }) => {
           <div className="grid grid-cols-3 gap-4 p-4 rounded-xl bg-white border border-slate-100 shadow-sm">
             <div>
               <p className="text-xs font-semibold text-slate-400 uppercase mb-1 tracking-wide">Fecha Emisión</p>
-              <p className="font-mono text-sm font-semibold text-slate-800">{invoice.fecha_emision}</p>
+              <p className="font-mono text-sm font-semibold text-slate-800">{formatDate(invoice.fecha_emision)}</p>
             </div>
             <div>
               <p className="text-xs font-semibold text-slate-400 uppercase mb-1 tracking-wide">Vencimiento</p>
-              <p className={`font-mono text-sm font-semibold ${todayStr > invoice.fecha_venc && invoice.status_pago === 'PENDIENTE' ? 'text-rose-600' : 'text-slate-800'}`}>{invoice.fecha_venc}</p>
+              <p className={`font-mono text-sm font-semibold ${todayStr > invoice.fecha_venc && invoice.status_pago === 'PENDIENTE' ? 'text-rose-600' : 'text-slate-800'}`}>{formatDate(invoice.fecha_venc)}</p>
             </div>
             <div>
               <p className="text-xs font-semibold text-slate-400 uppercase mb-1 tracking-wide">RUT Proveedor</p>

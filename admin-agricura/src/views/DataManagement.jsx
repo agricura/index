@@ -147,9 +147,6 @@ export default function DataManagement({ supabase, onNewDocument, onShowConfirm,
         </div>
       )}
 
-    </div>
-  );
-}
       {/* ── Modals ─────────────────────────────────────────────────────────── */}
       {showAgricuraImport && (
         <ExcelImportModal
@@ -200,3 +197,7 @@ export default function DataManagement({ supabase, onNewDocument, onShowConfirm,
           </div>
         </div>
       )}
+
+    </div>
+  );
+}

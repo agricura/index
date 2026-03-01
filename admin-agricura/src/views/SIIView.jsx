@@ -53,13 +53,14 @@ const parseDate = (v) => {
   return null;
 };
 
+const SII_MESES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
 const fmtDate = (v) => {
   const d = parseDate(v);
   if (!d || isNaN(d)) return v ? String(v) : '—';
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
   const day = String(d.getDate()).padStart(2, '0');
-  return `${y}/${m}/${day}`;
+  const mes = SII_MESES[d.getMonth()];
+  const y = d.getFullYear();
+  return `${day}-${mes}-${y}`;
 };
 
 // Returns "yyyy-mm-dd" string for filter comparison
