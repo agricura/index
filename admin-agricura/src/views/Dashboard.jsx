@@ -45,11 +45,18 @@ function Dashboard({ supabase, onEdit, onViewDetail, onShowConfirm }) {
   };
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
+  const [sortKey, setSortKey]   = useState('fecha_emision');
+  const [sortDir, setSortDir]   = useState('desc');
+  const handleSort = (key) => {
+    if (sortKey === key) setSortDir(d => d === 'asc' ? 'desc' : 'asc');
+    else { setSortKey(key); setSortDir('asc'); }
+  };
   const [filters, setFilters] = useState({
     search: '', providers: [], costCenters: [], types: [], status: [], startDate: '', endDate: '',
   });
 
   useEffect(() => { fetchInvoices(); }, []);
+  useEffect(() => { setCurrentPage(1); }, [sortKey, sortDir]);
 
   const fetchInvoices = async () => {
     setLoading(true);
@@ -122,8 +129,15 @@ function Dashboard({ supabase, onEdit, onViewDetail, onShowConfirm }) {
       const matchesCostCenter = filters.costCenters.length === 0 || filters.costCenters.includes(inv.centro_costo);
       const matchesType = filters.types.length === 0 || filters.types.includes(inv.tipo_doc);
       return matchesSearch && matchesStatus && matchesDate && matchesProvider && matchesCostCenter && matchesType;
+    }).sort((a, b) => {
+      let av = a[sortKey] ?? '';
+      let bv = b[sortKey] ?? '';
+      const colType = sortKey === 'proveedor' ? 'text' : (ALL_COLUMNS.find(c => c.key === sortKey)?.type ?? 'text');
+      if (colType === 'date') { av = av || ''; bv = bv || ''; }
+      if (typeof av === 'number' && typeof bv === 'number') return sortDir === 'asc' ? av - bv : bv - av;
+      return sortDir === 'asc' ? String(av).localeCompare(String(bv), 'es') : String(bv).localeCompare(String(av), 'es');
     });
-  }, [invoices, filters, todayStr]);
+  }, [invoices, filters, todayStr, sortKey, sortDir]);
 
   const stats = useMemo(() => ({
     pend: filteredInvoices.filter((inv) => inv.status_pago === 'PENDIENTE').reduce((s, i) => s + Number(i.total_a_pagar), 0),
@@ -276,10 +290,29 @@ function Dashboard({ supabase, onEdit, onViewDetail, onShowConfirm }) {
           <table className="w-full text-left border-collapse">
             <thead className="sticky top-0 z-10 bg-slate-50/80 backdrop-blur-sm border-b border-slate-200">
               <tr className="text-xs text-slate-400 font-semibold uppercase tracking-wider">
-                <th className="px-6 py-4 whitespace-nowrap">Proveedor / Folio</th>
+                <th
+                  onClick={() => handleSort('proveedor')}
+                  className="px-6 py-4 whitespace-nowrap cursor-pointer select-none hover:text-slate-600 transition-colors"
+                >
+                  <span className="flex items-center gap-1">
+                    Proveedor / Folio
+                    {sortKey === 'proveedor'
+                      ? sortDir === 'asc' ? <ChevronUp size={12} className="text-blue-500" /> : <ChevronDown size={12} className="text-blue-500" />
+                      : <ChevronUp size={12} className="opacity-20" />}
+                  </span>
+                </th>
                 {ALL_COLUMNS.filter(c => visibleCols.includes(c.key)).map(col => (
-                  <th key={col.key} className={`px-6 py-4 whitespace-nowrap${col.type === 'money' ? ' text-right' : col.type === 'status' ? ' text-center' : ''}`}>
-                    {col.label}
+                  <th
+                    key={col.key}
+                    onClick={() => handleSort(col.key)}
+                    className={`px-6 py-4 whitespace-nowrap cursor-pointer select-none hover:text-slate-600 transition-colors${col.type === 'money' ? ' text-right' : col.type === 'status' ? ' text-center' : ''}`}
+                  >
+                    <span className={`flex items-center gap-1${col.type === 'money' ? ' justify-end' : col.type === 'status' ? ' justify-center' : ''}`}>
+                      {col.label}
+                      {sortKey === col.key
+                        ? sortDir === 'asc' ? <ChevronUp size={12} className="text-blue-500" /> : <ChevronDown size={12} className="text-blue-500" />
+                        : <ChevronUp size={12} className="opacity-20" />}
+                    </span>
                   </th>
                 ))}
                 <th className="px-6 py-4 text-center whitespace-nowrap">Acciones</th>
