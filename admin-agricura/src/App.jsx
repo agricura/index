@@ -1,5 +1,5 @@
 ﻿import React, { useState, useEffect } from 'react';
-import { LayoutDashboard, Menu, X, LogOut, FileText, Database } from 'lucide-react';
+import { LayoutDashboard, Menu, X, LogOut, FileText, Database, BarChart3 } from 'lucide-react';
 import { loadScript, supabaseUrl, supabaseAnonKey } from './lib/supabase';
 import Auth from './views/Auth';
 import Dashboard from './views/Dashboard';
@@ -8,6 +8,7 @@ import SIIView from './views/SIIView';
 import ConfirmModal from './components/ConfirmModal';
 import InvoiceDetailModal from './components/InvoiceDetailModal';
 import DataManagement from './views/DataManagement';
+import ControlPanel from './views/ControlPanel';
 
 export default function App() {
   const [supabaseClient, setSupabaseClient] = useState(null);
@@ -93,6 +94,12 @@ export default function App() {
           <div className="px-1 pb-1">
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5 px-2.5">Facturas</p>
             <button
+              onClick={() => { setCurrentView('controlPanel'); setIsSidebarOpen(false); }}
+              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg transition-all duration-200 text-sm font-medium ${currentView === 'controlPanel' ? 'bg-blue-600 shadow-md shadow-blue-600/20 text-white' : 'text-slate-400 hover:bg-white/5 hover:text-white'}`}
+            >
+              <BarChart3 size={18} /><span>Panel de Control</span>
+            </button>
+            <button
               onClick={() => { setCurrentView('dashboard'); setIsSidebarOpen(false); }}
               className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg transition-all duration-200 text-sm font-medium ${currentView === 'dashboard' ? 'bg-blue-600 shadow-md shadow-blue-600/20 text-white' : 'text-slate-400 hover:bg-white/5 hover:text-white'}`}
             >
@@ -140,6 +147,9 @@ export default function App() {
 
       <main className="flex-1 overflow-auto h-full relative bg-slate-50 flex flex-col">
         <div className="flex-1 w-full max-w-[1600px] mx-auto p-4 lg:p-8">
+          {currentView === 'controlPanel' && (
+            <ControlPanel supabase={supabaseClient} />
+          )}
           {currentView === 'dashboard' && (
             <Dashboard
               supabase={supabaseClient}
@@ -161,6 +171,7 @@ export default function App() {
               supabase={supabaseClient}
               onNewDocument={() => { setInvoiceToEdit(null); setCurrentView('form'); }}
               onShowConfirm={(cfg) => setConfirmModal({ ...cfg, isOpen: true })}
+              onNavigateToPanel={() => setCurrentView('controlPanel')}
             />
           )}
           {currentView === 'sii' && (
@@ -173,7 +184,11 @@ export default function App() {
         </div>
 
         {viewingInvoice && (
-          <InvoiceDetailModal invoice={viewingInvoice} onClose={() => setViewingInvoice(null)} />
+          <InvoiceDetailModal
+            invoice={viewingInvoice}
+            onClose={() => setViewingInvoice(null)}
+            onEdit={(inv) => { setViewingInvoice(null); setInvoiceToEdit(inv); setCurrentView('form'); }}
+          />
         )}
       </main>
 

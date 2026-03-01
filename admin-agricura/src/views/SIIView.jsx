@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { FileText, Settings2, Search, RefreshCw, Upload, X, ChevronUp, ChevronDown, Eye, EyeOff, Filter, ChevronLeft, ChevronRight, AlertTriangle, CheckCircle2 } from 'lucide-react';
-import SIIImportModal from '../components/SIIImportModal';
+import { FileText, Settings2, Search, RefreshCw, X, ChevronUp, ChevronDown, Eye, EyeOff, Filter, ChevronLeft, ChevronRight, CheckCircle2 } from 'lucide-react';
 
 const PAGE_SIZE = 20;
 
@@ -92,10 +91,8 @@ export default function SIIView({ supabase, onShowConfirm, onViewDetail }) {
   const [records, setRecords]           = useState([]);
   const [loading, setLoading]           = useState(true);
   const [search, setSearch]             = useState('');
-  const [showImport, setShowImport]         = useState(false);
   const [showColPanel, setShowColPanel]     = useState(false);
   const [showFilters, setShowFilters]       = useState(false);
-  const [showDuplicates, setShowDuplicates] = useState(false);
   const [invoiceMap, setInvoiceMap]         = useState(new Map());
   const [filters, setFilters]           = useState(EMPTY_FILTERS);
   const [sortKey, setSortKey]           = useState('fecha_docto');
@@ -166,24 +163,6 @@ export default function SIIView({ supabase, onShowConfirm, onViewDetail }) {
   const tipoDocOptions    = useMemo(() => [...new Set(records.map(r => r.tipo_doc).filter(v => v !== null && v !== undefined))].sort((a,b) => a-b), [records]);
   const activeFilterCount = Object.values(filters).filter(v => v !== '').length;
 
-  // ── Folio duplicates across different providers ──────────────────────────
-  const folioDuplicates = useMemo(() => {
-    const map = {};
-    records.forEach(r => {
-      const f = String(r.folio || '').trim();
-      if (!f) return;
-      if (!map[f]) map[f] = { provs: new Set(), rows: [] };
-      map[f].provs.add(String(r.rut_proveedor || '').trim());
-      map[f].rows.push(r);
-    });
-    return Object.entries(map)
-      .filter(([, v]) => v.provs.size > 1)
-      .map(([folio, v]) => ({ folio, providers: [...v.provs].sort(), count: v.rows.length }))
-      .sort((a, b) => b.count - a.count);
-  }, [records]);
-
-  const duplicateFolioSet = useMemo(() => new Set(folioDuplicates.map(d => d.folio)), [folioDuplicates]);
-
   const filtered = useMemo(() => {
     let rows = records;
     if (search.trim()) {
@@ -199,7 +178,6 @@ export default function SIIView({ supabase, onShowConfirm, onViewDetail }) {
     if (filters.razonSocial) { const q = filters.razonSocial.trim().toLowerCase(); rows = rows.filter(r => String(r.razon_social || '').toLowerCase().includes(q)); }
     if (filters.fechaDesde)  rows = rows.filter(r => toISODate(r.fecha_docto) >= filters.fechaDesde);
     if (filters.fechaHasta)  rows = rows.filter(r => { const d = toISODate(r.fecha_docto); return d && d <= filters.fechaHasta; });
-    if (showDuplicates)      rows = rows.filter(r => duplicateFolioSet.has(String(r.folio || '').trim()));
 
     return [...rows].sort((a, b) => {
       let av = a[sortKey] ?? '';
@@ -208,7 +186,7 @@ export default function SIIView({ supabase, onShowConfirm, onViewDetail }) {
       if (typeof av === 'number' && typeof bv === 'number') return sortDir === 'asc' ? av - bv : bv - av;
       return sortDir === 'asc' ? String(av).localeCompare(String(bv)) : String(bv).localeCompare(String(av));
     });
-  }, [records, search, filters, sortKey, sortDir, showDuplicates, duplicateFolioSet]);
+  }, [records, search, filters, sortKey, sortDir]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const safePage   = Math.min(page, totalPages);
@@ -304,59 +282,14 @@ export default function SIIView({ supabase, onShowConfirm, onViewDetail }) {
             <span className="hidden sm:inline">Columnas</span>
             <span className={`text-xs px-1.5 py-0.5 rounded-full font-bold ${showColPanel ? 'bg-white/20 text-white' : 'bg-violet-100 text-violet-700'}`}>{visibleCols.length}</span>
           </button>
-          {!loading && folioDuplicates.length > 0 && (
-            <button
-              onClick={() => { setShowDuplicates(p => !p); setShowFilters(false); setShowColPanel(false); }}
-              className={`flex items-center gap-2 px-3.5 py-2 rounded-lg border text-sm font-medium transition-all active:scale-[0.98] ${showDuplicates ? 'bg-amber-500 border-amber-500 text-white shadow-sm shadow-amber-500/20' : 'border-amber-300 text-amber-700 hover:border-amber-400 bg-amber-50'}`}
-            >
-              <AlertTriangle size={15} />
-              <span className="hidden sm:inline">Duplicados</span>
-              <span className={`text-xs px-1.5 py-0.5 rounded-full font-bold ${showDuplicates ? 'bg-white/20 text-white' : 'bg-amber-200 text-amber-800'}`}>{folioDuplicates.length}</span>
-            </button>
-          )}
           <button onClick={fetchData}
             className="flex items-center gap-2 px-3.5 py-2 rounded-lg border border-slate-200 text-sm font-medium text-slate-600 hover:border-slate-300 bg-white transition-all active:scale-[0.98]">
             <RefreshCw size={15} className={loading ? 'animate-spin' : ''} />
             <span className="hidden sm:inline">Actualizar</span>
           </button>
-          <button onClick={() => setShowImport(true)}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-violet-600 text-white text-sm font-medium hover:bg-violet-700 shadow-sm shadow-violet-600/20 transition-all active:scale-[0.98]">
-            <Upload size={15} /><span>Importar Excel</span>
-          </button>
+
         </div>
       </div>
-
-      {/* Panel de folios duplicados */}
-      {showDuplicates && folioDuplicates.length > 0 && (
-        <div className="bg-white border border-amber-200 rounded-xl p-5 shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
-              <AlertTriangle size={14} className="text-amber-500" />
-              Folios con múltiples proveedores
-              <span className="bg-amber-100 text-amber-700 text-xs px-1.5 py-0.5 rounded-full font-bold">{folioDuplicates.length} folio{folioDuplicates.length !== 1 ? 's' : ''}</span>
-            </h3>
-            <button onClick={() => setShowDuplicates(false)} className="p-1 hover:bg-slate-100 rounded-lg text-slate-400"><X size={15} /></button>
-          </div>
-          <p className="text-xs text-slate-500 mb-4">
-            Estos folios aparecen asociados a <span className="font-semibold">más de un RUT proveedor</span> en la base de datos. El total de registros afectados es <span className="font-semibold text-amber-700">{folioDuplicates.reduce((s, d) => s + d.count, 0)}</span>.
-          </p>
-          <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
-            {folioDuplicates.map(({ folio, providers, count }) => (
-              <div key={folio} className="flex items-start gap-3 p-3 bg-amber-50/60 border border-amber-100 rounded-lg">
-                <div className="shrink-0">
-                  <span className="text-sm font-bold text-violet-700">{folio}</span>
-                  <span className="ml-2 text-xs text-slate-400">{count} doc{count !== 1 ? 's' : ''}</span>
-                </div>
-                <div className="flex flex-wrap gap-1.5 flex-1">
-                  {providers.map(rut => (
-                    <span key={rut} className="px-2 py-0.5 bg-white border border-amber-200 rounded-md text-xs font-mono text-slate-600">{rut}</span>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
 
       {/* Panel selector de columnas */}
       {showColPanel && (
@@ -403,11 +336,7 @@ export default function SIIView({ supabase, onShowConfirm, onViewDetail }) {
             <FileText size={26} className="text-violet-400" />
           </div>
           <p className="text-base font-semibold text-slate-700">Sin datos SII</p>
-          <p className="text-sm text-slate-400 mt-1 mb-5">Importa tu primer archivo Excel (.xlsx) del libro de compras</p>
-          <button onClick={() => setShowImport(true)}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-violet-600 text-white text-sm font-semibold hover:bg-violet-700 shadow-sm transition-all active:scale-[0.98]">
-            <Upload size={15} /> Importar Excel SII
-          </button>
+          <p className="text-sm text-slate-400 mt-1">Usa <span className="font-medium text-slate-500">Manejo de Datos</span> para importar el archivo Excel del libro de compras</p>
         </div>
       )}
 
@@ -555,9 +484,7 @@ export default function SIIView({ supabase, onShowConfirm, onViewDetail }) {
         </div>
       )}
 
-      {showImport && (
-        <SIIImportModal supabase={supabase} onClose={() => setShowImport(false)} onImported={fetchData} />
-      )}
+
     </div>
   );
 }

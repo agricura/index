@@ -1,8 +1,8 @@
 import React from 'react';
-import { Package, X } from 'lucide-react';
+import { Package, X, Pencil } from 'lucide-react';
 import { formatCLP } from '../utils/formatters';
 
-const InvoiceDetailModal = ({ invoice, onClose }) => {
+const InvoiceDetailModal = ({ invoice, onClose, onEdit }) => {
   if (!invoice) return null;
 
   const todayStr = new Date().toISOString().split('T')[0];
@@ -21,7 +21,17 @@ const InvoiceDetailModal = ({ invoice, onClose }) => {
               <p className="text-slate-500 text-sm font-medium truncate max-w-[200px] lg:max-w-none mt-0.5">{invoice.proveedor}</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 bg-slate-50 hover:bg-slate-100 text-slate-500 rounded-lg transition-all active:scale-[0.98]"><X size={18} /></button>
+          <div className="flex items-center gap-2">
+            {onEdit && (
+              <button
+                onClick={() => onEdit(invoice)}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-lg text-sm font-medium transition-all active:scale-[0.98]"
+              >
+                <Pencil size={14} /> Editar
+              </button>
+            )}
+            <button onClick={onClose} className="p-2 bg-slate-50 hover:bg-slate-100 text-slate-500 rounded-lg transition-all active:scale-[0.98]"><X size={18} /></button>
+          </div>
         </div>
 
         <div className="p-5 lg:p-6 overflow-y-auto space-y-6 bg-slate-50/30">

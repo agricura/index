@@ -1,18 +1,43 @@
-import React, { useState } from 'react';
-import { Upload, Plus, FileSpreadsheet, FileText, X, ChevronRight, Database } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Upload, Plus, FileSpreadsheet, FileText, X, ChevronRight, Database, CheckCircle2 } from 'lucide-react';
 import ExcelImportModal from '../components/ExcelImportModal';
 import SIIImportModal from '../components/SIIImportModal';
 
-export default function DataManagement({ supabase, onNewDocument, onShowConfirm }) {
+export default function DataManagement({ supabase, onNewDocument, onShowConfirm, onNavigateToPanel }) {
   const [showChooser, setShowChooser] = useState(false);
   const [showAgricuraImport, setShowAgricuraImport] = useState(false);
   const [showSIIImport, setShowSIIImport] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [successType, setSuccessType] = useState(''); // 'Agricura' | 'SII'
+  const [countdown, setCountdown] = useState(3);
+
+  useEffect(() => {
+    if (!showSuccess) return;
+    setCountdown(3);
+    const interval = setInterval(() => {
+      setCountdown(prev => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          setShowSuccess(false);
+          onNavigateToPanel?.();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [showSuccess]);
 
   const openChooser = () => setShowChooser(true);
   const closeChooser = () => setShowChooser(false);
 
   const handleSelectAgricura = () => { closeChooser(); setShowAgricuraImport(true); };
   const handleSelectSII      = () => { closeChooser(); setShowSIIImport(true); };
+
+  const handleImported = (type) => {
+    setSuccessType(type);
+    setShowSuccess(true);
+  };
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -122,12 +147,15 @@ export default function DataManagement({ supabase, onNewDocument, onShowConfirm 
         </div>
       )}
 
+    </div>
+  );
+}
       {/* ── Modals ─────────────────────────────────────────────────────────── */}
       {showAgricuraImport && (
         <ExcelImportModal
           supabase={supabase}
           onClose={() => setShowAgricuraImport(false)}
-          onImported={() => { setShowAgricuraImport(false); }}
+          onImported={() => { setShowAgricuraImport(false); handleImported('Agricura'); }}
         />
       )}
 
@@ -135,10 +163,40 @@ export default function DataManagement({ supabase, onNewDocument, onShowConfirm 
         <SIIImportModal
           supabase={supabase}
           onClose={() => setShowSIIImport(false)}
-          onImported={() => { setShowSIIImport(false); }}
+          onImported={() => { setShowSIIImport(false); handleImported('SII'); }}
         />
       )}
 
-    </div>
-  );
-}
+      {/* ── Success popup ───────────────────────────────────────────────── */}
+      {showSuccess && (
+        <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/30 backdrop-blur-sm p-4 animate-in fade-in">
+          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200/60 w-full max-w-sm overflow-hidden">
+            <div className="flex flex-col items-center px-8 pt-10 pb-8 text-center">
+              <div className="w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center mb-5">
+                <CheckCircle2 size={36} className="text-emerald-500" />
+              </div>
+              <h3 className="text-xl font-bold text-slate-900 mb-1">¡Carga Exitosa!</h3>
+              <p className="text-sm text-slate-500 font-medium">
+                Los datos de <span className="text-slate-700 font-semibold">{successType}</span> fueron importados correctamente.
+              </p>
+              <p className="text-xs text-slate-400 mt-4">
+                Redirigiendo al Panel de Control en <span className="font-bold text-slate-600">{countdown}</span>s…
+              </p>
+            </div>
+            <div className="px-8 pb-7 flex gap-3">
+              <button
+                onClick={() => { setShowSuccess(false); onNavigateToPanel?.(); }}
+                className="flex-1 px-4 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-sm font-semibold transition-all active:scale-[0.98]"
+              >
+                Ir al Panel
+              </button>
+              <button
+                onClick={() => setShowSuccess(false)}
+                className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-sm font-semibold transition-all active:scale-[0.98]"
+              >
+                Quedarme
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
