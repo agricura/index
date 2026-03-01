@@ -8,7 +8,8 @@ function InvoiceForm({ supabase, onSuccess, invoiceToEdit, onShowConfirm }) {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     tipo_doc: invoiceToEdit?.tipo_doc || 'Factura',
-    no_documento: invoiceToEdit?.no_documento || '',
+    folio: invoiceToEdit?.folio || '',
+    rut: invoiceToEdit?.rut || '',
     proveedor: invoiceToEdit?.proveedor || '',
     fecha_emision: invoiceToEdit?.fecha_emision || '',
     fecha_venc: invoiceToEdit?.fecha_venc || '',
@@ -119,10 +120,14 @@ function InvoiceForm({ supabase, onSuccess, invoiceToEdit, onShowConfirm }) {
               />
             </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 lg:gap-5">
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide px-1">Folio / Número</label>
-              <input name="no_documento" value={formData.no_documento} onChange={handleGeneralChange} className="w-full bg-slate-50 border border-slate-200 hover:border-slate-300 px-4 py-2.5 rounded-lg font-medium text-sm text-slate-800 outline-none transition-all focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10" placeholder="Ej: 45001" required />
+              <input name="folio" value={formData.folio} onChange={handleGeneralChange} className="w-full bg-slate-50 border border-slate-200 hover:border-slate-300 px-4 py-2.5 rounded-lg font-medium text-sm text-slate-800 outline-none transition-all focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10" placeholder="Ej: 45001" required />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide px-1">RUT Proveedor</label>
+              <input name="rut" value={formData.rut} onChange={handleGeneralChange} className="w-full bg-slate-50 border border-slate-200 hover:border-slate-300 px-4 py-2.5 rounded-lg font-medium text-sm text-slate-800 outline-none transition-all focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10" placeholder="Ej: 76.123.456-7" />
             </div>
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide px-1">Fecha Emisión</label>

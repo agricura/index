@@ -15,7 +15,7 @@ const InvoiceDetailModal = ({ invoice, onClose }) => {
             <div className="bg-blue-50 p-2.5 rounded-xl text-blue-600"><Package size={20} /></div>
             <div>
               <h3 className="text-lg font-bold text-slate-900 tracking-tight flex items-center gap-2">
-                #{invoice.no_documento}
+                #{invoice.folio}
                 <span className="text-xs uppercase font-semibold bg-slate-100 text-slate-500 px-2 py-0.5 rounded-md tracking-wide">{invoice.tipo_doc}</span>
               </h3>
               <p className="text-slate-500 text-sm font-medium truncate max-w-[200px] lg:max-w-none mt-0.5">{invoice.proveedor}</p>
@@ -25,7 +25,7 @@ const InvoiceDetailModal = ({ invoice, onClose }) => {
         </div>
 
         <div className="p-5 lg:p-6 overflow-y-auto space-y-6 bg-slate-50/30">
-          <div className="grid grid-cols-2 gap-4 p-4 rounded-xl bg-white border border-slate-100 shadow-sm">
+          <div className="grid grid-cols-3 gap-4 p-4 rounded-xl bg-white border border-slate-100 shadow-sm">
             <div>
               <p className="text-xs font-semibold text-slate-400 uppercase mb-1 tracking-wide">Fecha Emisión</p>
               <p className="font-mono text-sm font-semibold text-slate-800">{invoice.fecha_emision}</p>
@@ -33,6 +33,10 @@ const InvoiceDetailModal = ({ invoice, onClose }) => {
             <div>
               <p className="text-xs font-semibold text-slate-400 uppercase mb-1 tracking-wide">Vencimiento</p>
               <p className={`font-mono text-sm font-semibold ${todayStr > invoice.fecha_venc && invoice.status_pago === 'PENDIENTE' ? 'text-rose-600' : 'text-slate-800'}`}>{invoice.fecha_venc}</p>
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-slate-400 uppercase mb-1 tracking-wide">RUT Proveedor</p>
+              <p className="font-mono text-sm font-semibold text-slate-800">{invoice.rut || '—'}</p>
             </div>
           </div>
 

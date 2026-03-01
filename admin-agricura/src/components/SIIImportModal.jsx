@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { FileText, X, Upload, CheckCircle, AlertCircle } from 'lucide-react';
 
 // Fallback por si alguna celda numérica viene como string con puntos de miles
 const parseNum = (val) => {
   if (val === null || val === undefined || val === '') return 0;
-  if (typeof val === 'number') return Math.round(val);
+  if (typeof val === 'number') return Math.round(val * 100) / 100;
   const cleaned = String(val).replace(/\./g, '').replace(',', '.').trim();
-  const n = parseInt(cleaned, 10);
-  return isNaN(n) ? 0 : n;
+  const n = parseFloat(cleaned);
+  return isNaN(n) ? 0 : Math.round(n * 100) / 100;
 };
 
 // Convierte fecha Excel (serial, Date obj, "dd-mm-yy", "dd-mm-yyyy") → "yyyy/mm/dd"
@@ -92,6 +92,12 @@ const SIIImportModal = ({ supabase, onClose, onImported }) => {
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState('');
   const [mode, setMode] = useState('append'); // 'append' | 'replace'
+  const cancelledRef = useRef(false);
+
+  const handleCancel = () => {
+    cancelledRef.current = true;
+    setStatus('⚠ Proceso cancelado por el usuario.');
+  };
 
   const parseXLSX = (arrayBuffer) => {
     if (!window.XLSX) throw new Error('Librería Excel no cargada, recarga la página');
@@ -121,6 +127,7 @@ const SIIImportModal = ({ supabase, onClose, onImported }) => {
 
   const processXLSX = async () => {
     if (!file) return;
+    cancelledRef.current = false;
     setLoading(true);
     setStatus('Leyendo archivo...');
 
@@ -142,6 +149,7 @@ const SIIImportModal = ({ supabase, onClose, onImported }) => {
         const BATCH = 200;
         let inserted = 0;
         for (let i = 0; i < rows.length; i += BATCH) {
+          if (cancelledRef.current) { setStatus(`⚠ Cancelado — ${inserted} registros insertados antes de interrumpir.`); break; }
           const batch = rows.slice(i, i + BATCH);
           const { error } = await supabase.from('sii_records').insert(batch);
           if (error) throw new Error(`Error en lote ${Math.ceil(i/BATCH)+1}: ${error.message}`);
@@ -149,8 +157,10 @@ const SIIImportModal = ({ supabase, onClose, onImported }) => {
           setStatus(`Insertando... ${inserted}/${rows.length}`);
         }
 
-        setStatus(`✓ ${inserted} registro${inserted !== 1 ? 's' : ''} importados${dupeMsg}`);
-        setTimeout(() => { onImported(); onClose(); }, 1800);
+        if (!cancelledRef.current) {
+          setStatus(`✓ ${inserted} registro${inserted !== 1 ? 's' : ''} importados${dupeMsg}`);
+          setTimeout(() => { onImported(); onClose(); }, 1800);
+        }
       } catch (err) {
         setStatus(`Error: ${err.message}`);
       } finally {
@@ -238,15 +248,25 @@ const SIIImportModal = ({ supabase, onClose, onImported }) => {
             </div>
           )}
 
-          <button
-            disabled={!file || loading}
-            onClick={processXLSX}
-            className="w-full bg-violet-600 text-white font-semibold py-2.5 px-5 rounded-lg shadow-sm shadow-violet-600/20 hover:shadow-md hover:bg-violet-700 active:scale-[0.98] transition-all disabled:opacity-50 disabled:pointer-events-none text-sm flex justify-center items-center gap-2"
-          >
-            {loading ? (
-              <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> Importando...</>
-            ) : 'Iniciar Importación SII'}
-          </button>
+          <div className="flex gap-2">
+            {loading && (
+              <button
+                onClick={handleCancel}
+                className="flex-none py-2.5 px-4 rounded-lg border border-rose-200 text-rose-600 text-sm font-semibold hover:bg-rose-50 active:scale-[0.98] transition-all"
+              >
+                Cancelar
+              </button>
+            )}
+            <button
+              disabled={!file || loading}
+              onClick={processXLSX}
+              className="flex-1 bg-violet-600 text-white font-semibold py-2.5 px-5 rounded-lg shadow-sm shadow-violet-600/20 hover:shadow-md hover:bg-violet-700 active:scale-[0.98] transition-all disabled:opacity-50 disabled:pointer-events-none text-sm flex justify-center items-center gap-2"
+            >
+              {loading ? (
+                <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> Importando...</>
+              ) : 'Iniciar Importación SII'}
+            </button>
+          </div>
         </div>
       </div>
     </div>

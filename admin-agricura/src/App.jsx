@@ -1,5 +1,5 @@
 ﻿import React, { useState, useEffect } from 'react';
-import { LayoutDashboard, Menu, X, LogOut, Plus, FileSpreadsheet, FileText } from 'lucide-react';
+import { LayoutDashboard, Menu, X, LogOut, FileText, Database } from 'lucide-react';
 import { loadScript, supabaseUrl, supabaseAnonKey } from './lib/supabase';
 import Auth from './views/Auth';
 import Dashboard from './views/Dashboard';
@@ -7,7 +7,7 @@ import InvoiceForm from './views/InvoiceForm';
 import SIIView from './views/SIIView';
 import ConfirmModal from './components/ConfirmModal';
 import InvoiceDetailModal from './components/InvoiceDetailModal';
-import ExcelImportModal from './components/ExcelImportModal';
+import DataManagement from './views/DataManagement';
 
 export default function App() {
   const [supabaseClient, setSupabaseClient] = useState(null);
@@ -15,7 +15,6 @@ export default function App() {
   const [currentView, setCurrentView] = useState('dashboard');
   const [invoiceToEdit, setInvoiceToEdit] = useState(null);
   const [viewingInvoice, setViewingInvoice] = useState(null);
-  const [isImporting, setIsImporting] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: '', message: '', onConfirm: () => {}, type: 'info' });
@@ -92,34 +91,25 @@ export default function App() {
         <nav className="flex-1 px-3 mt-16 lg:mt-3 overflow-y-auto scrollbar-hide py-3 space-y-1">
 
           <div className="px-1 pb-1">
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5 px-2.5">Datos Agricura</p>
+            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5 px-2.5">Facturas</p>
             <button
               onClick={() => { setCurrentView('dashboard'); setIsSidebarOpen(false); }}
               className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg transition-all duration-200 text-sm font-medium ${currentView === 'dashboard' ? 'bg-blue-600 shadow-md shadow-blue-600/20 text-white' : 'text-slate-400 hover:bg-white/5 hover:text-white'}`}
             >
-              <LayoutDashboard size={18} /><span>Panel Contable</span>
+              <LayoutDashboard size={18} /><span>Datos Agricura</span>
             </button>
-            <button
-              onClick={() => { setCurrentView('form'); setInvoiceToEdit(null); setIsSidebarOpen(false); }}
-              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg transition-all duration-200 text-sm font-medium ${currentView === 'form' ? 'bg-blue-600 shadow-md shadow-blue-600/20 text-white' : 'text-slate-400 hover:bg-white/5 hover:text-white'}`}
-            >
-              <Plus size={18} /><span>Registrar Documento</span>
-            </button>
-            <button
-              onClick={() => { setIsImporting(true); setIsSidebarOpen(false); }}
-              className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-emerald-400 hover:bg-emerald-500/10 transition-all active:scale-[0.98] text-sm font-medium"
-            >
-              <FileSpreadsheet size={18} /><span>Importar Datos</span>
-            </button>
-          </div>
-
-          <div className="pt-3 px-1 pb-1">
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5 px-2.5">SII</p>
             <button
               onClick={() => { setCurrentView('sii'); setIsSidebarOpen(false); }}
               className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg transition-all duration-200 text-sm font-medium ${currentView === 'sii' ? 'bg-violet-600 shadow-md shadow-violet-600/20 text-white' : 'text-slate-400 hover:bg-white/5 hover:text-white'}`}
             >
-              <FileText size={18} /><span>Data SII</span>
+              <FileText size={18} /><span>Datos SII</span>
+            </button>
+            <div className="my-2 mx-2.5 border-t border-white/10" />
+            <button
+              onClick={() => { setCurrentView('dataManagement'); setIsSidebarOpen(false); }}
+              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg transition-all duration-200 text-sm font-medium ${currentView === 'dataManagement' ? 'bg-blue-600 shadow-md shadow-blue-600/20 text-white' : 'text-slate-400 hover:bg-white/5 hover:text-white'}`}
+            >
+              <Database size={18} /><span>Manejo de Datos</span>
             </button>
           </div>
 
@@ -166,6 +156,13 @@ export default function App() {
               onShowConfirm={(cfg) => setConfirmModal({ ...cfg, isOpen: true })}
             />
           )}
+          {currentView === 'dataManagement' && (
+            <DataManagement
+              supabase={supabaseClient}
+              onNewDocument={() => { setInvoiceToEdit(null); setCurrentView('form'); }}
+              onShowConfirm={(cfg) => setConfirmModal({ ...cfg, isOpen: true })}
+            />
+          )}
           {currentView === 'sii' && (
             <SIIView
               supabase={supabaseClient}
@@ -176,13 +173,6 @@ export default function App() {
 
         {viewingInvoice && (
           <InvoiceDetailModal invoice={viewingInvoice} onClose={() => setViewingInvoice(null)} />
-        )}
-        {isImporting && (
-          <ExcelImportModal
-            supabase={supabaseClient}
-            onClose={() => setIsImporting(false)}
-            onImported={() => window.location.reload()}
-          />
         )}
       </main>
 
