@@ -13,7 +13,7 @@ import ControlPanel from './views/ControlPanel';
 export default function App() {
   const [supabaseClient, setSupabaseClient] = useState(null);
   const [session, setSession] = useState(null);
-  const [currentView, setCurrentView] = useState('dashboard');
+  const [currentView, setCurrentView] = useState('controlPanel');
   const [invoiceToEdit, setInvoiceToEdit] = useState(null);
   const [viewingInvoice, setViewingInvoice] = useState(null);
   const [isReady, setIsReady] = useState(false);

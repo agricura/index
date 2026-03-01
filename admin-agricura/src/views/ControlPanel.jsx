@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import {
   LayoutDashboard, CheckCircle, Clock, FileText,
-  TrendingUp, AlertTriangle, BarChart3, Loader2, Calendar, X,
+  TrendingUp, AlertTriangle, BarChart3, Loader2, Calendar, X, ChevronLeft, ChevronRight,
 } from 'lucide-react';
 import { formatCLP, formatDate } from '../utils/formatters';
+import InvoiceDetailModal from '../components/InvoiceDetailModal';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const Skeleton = () => (
@@ -51,7 +52,10 @@ export default function ControlPanel({ supabase }) {
   const [siiRecords,  setSiiRecords]  = useState([]);
   const [loadingInv,  setLoadingInv]  = useState(true);
   const [loadingSII,  setLoadingSII]  = useState(true);
-  const [weeklyModal, setWeeklyModal] = useState(null); // null | bucket object
+  const [weeklyModal,   setWeeklyModal]   = useState(null);
+  const [upcomingPage,  setUpcomingPage]  = useState(1);
+  const [viewingInvoice, setViewingInvoice] = useState(null);
+  const UPCOMING_PAGE_SIZE = 7;
 
   useEffect(() => {
     const fetchAll = async (table, setter, setLoading) => {
@@ -88,11 +92,10 @@ export default function ControlPanel({ supabase }) {
       byTipo[k].total += Number(inv.total_a_pagar || 0);
     });
 
-    // Upcoming: pending docs sorted by fecha_venc asc (soonest first), top 6
+    // Upcoming: all pending docs sorted by fecha_venc asc (soonest first)
     const upcoming = invoices
       .filter(i => i.status_pago === 'PENDIENTE' && (i.fecha_venc ?? ''))
-      .sort((a, b) => (a.fecha_venc ?? '').localeCompare(b.fecha_venc ?? ''))
-      .slice(0, 6);
+      .sort((a, b) => (a.fecha_venc ?? '').localeCompare(b.fecha_venc ?? ''));
 
     // Recent 4
     const recent = [...invoices]
@@ -204,27 +207,30 @@ export default function ControlPanel({ supabase }) {
         />
 
         {/* KPI row */}
-        <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 lg:gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 lg:gap-4 mb-6">
           <KpiCard label="Pendiente"   value={agriStats.totalPending} color="amber"   icon={<Clock size={18} />}          loading={loadingInv} />
           <KpiCard label="Vencido"     value={agriStats.totalOverdue} color="rose"    icon={<AlertTriangle size={18} />}  loading={loadingInv} />
           <KpiCard label="Pagado"      value={agriStats.totalPaid}    color="emerald" icon={<CheckCircle size={18} />}    loading={loadingInv} />
-          <KpiCard label="Total Docs"  value={invoices.length}        color="blue"    icon={<FileText size={18} />}       loading={loadingInv} prefix="" />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
           {/* Próximos Vencimientos */}
-          {!loadingInv && agriStats.upcoming.length > 0 && (
-            <div className="bg-white border border-slate-200/60 rounded-xl overflow-hidden">
-              <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+          {!loadingInv && agriStats.upcoming.length > 0 && (() => {
+            const totalUpcomingPages = Math.ceil(agriStats.upcoming.length / UPCOMING_PAGE_SIZE);
+            const safePage = Math.min(upcomingPage, totalUpcomingPages);
+            const pageSlice = agriStats.upcoming.slice((safePage - 1) * UPCOMING_PAGE_SIZE, safePage * UPCOMING_PAGE_SIZE);
+            return (
+            <div className="bg-white border border-slate-200/60 rounded-xl overflow-hidden flex flex-col">
+              <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between shrink-0">
                 <div className="flex items-center gap-2">
                   <Clock size={15} className="text-amber-500" />
                   <h4 className="text-sm font-bold text-slate-700">Próximos Vencimientos</h4>
                 </div>
-                <span className="text-xs text-slate-400 font-medium">{agriStats.countPending + agriStats.countOverdue} pendientes en total</span>
+                <span className="text-xs text-slate-400 font-medium">{agriStats.upcoming.length} pendientes en total</span>
               </div>
-              <div className="overflow-x-auto">
+              <div className="flex-1 overflow-auto min-h-0">
                 <table className="w-full text-sm">
-                  <thead className="bg-slate-50/60 text-xs text-slate-400 uppercase tracking-wider font-semibold">
+                  <thead className="bg-slate-50/60 text-xs text-slate-400 uppercase tracking-wider font-semibold sticky top-0">
                     <tr>
                       <th className="px-5 py-3 text-left">Proveedor</th>
                       <th className="px-5 py-3 text-left">Vence</th>
@@ -233,17 +239,17 @@ export default function ControlPanel({ supabase }) {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
-                    {agriStats.upcoming.map(inv => {
+                    {pageSlice.map(inv => {
                       const isOverdue = (inv.fecha_venc ?? '') < todayStr;
                       const daysLeft = inv.fecha_venc
                         ? Math.ceil((new Date(inv.fecha_venc) - new Date(todayStr)) / 86400000)
                         : null;
                       const isImminent = !isOverdue && daysLeft !== null && daysLeft <= 7;
                       return (
-                        <tr key={inv.id} className={`transition-colors ${
-                          isOverdue ? 'bg-rose-50/30 hover:bg-rose-50/50' :
-                          isImminent ? 'bg-amber-50/30 hover:bg-amber-50/50' :
-                          'hover:bg-slate-50/50'
+                        <tr key={inv.id} onClick={() => setViewingInvoice(inv)} className={`cursor-pointer transition-colors ${
+                          isOverdue ? 'bg-rose-50/30 hover:bg-rose-50/60' :
+                          isImminent ? 'bg-amber-50/30 hover:bg-amber-50/60' :
+                          'hover:bg-blue-50/30'
                         }`}>
                           <td className="px-5 py-3">
                             <p className="font-semibold text-slate-800 text-xs truncate max-w-[140px]">{inv.proveedor}</p>
@@ -277,8 +283,44 @@ export default function ControlPanel({ supabase }) {
                   </tbody>
                 </table>
               </div>
+              {/* Pagination */}
+              {totalUpcomingPages > 1 && (
+                <div className="px-5 py-3 border-t border-slate-100 flex items-center justify-between bg-slate-50/40 shrink-0">
+                  <span className="text-xs text-slate-400 font-medium">
+                    Pág. {safePage} de {totalUpcomingPages}
+                  </span>
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => setUpcomingPage(p => Math.max(1, p - 1))}
+                      disabled={safePage === 1}
+                      className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                    >
+                      <ChevronLeft size={14} />
+                    </button>
+                    {Array.from({ length: totalUpcomingPages }, (_, i) => i + 1).map(n => (
+                      <button
+                        key={n}
+                        onClick={() => setUpcomingPage(n)}
+                        className={`w-6 h-6 rounded-md text-xs font-semibold transition-all ${
+                          n === safePage
+                            ? 'bg-blue-600 text-white shadow-sm'
+                            : 'text-slate-500 hover:bg-slate-100'
+                        }`}
+                      >{n}</button>
+                    ))}
+                    <button
+                      onClick={() => setUpcomingPage(p => Math.min(totalUpcomingPages, p + 1))}
+                      disabled={safePage === totalUpcomingPages}
+                      className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                    >
+                      <ChevronRight size={14} />
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
-          )}
+            );
+          })()}
 
           {/* RIGHT COLUMN: weekly buckets + últimos documentos */}
           {!loadingInv && (
@@ -346,7 +388,7 @@ export default function ControlPanel({ supabase }) {
                     {agriStats.recent.map(inv => {
                       const isOverdue = inv.status_pago === 'PENDIENTE' && (inv.fecha_venc ?? '') < todayStr;
                       return (
-                        <div key={inv.id} className="px-5 py-2.5 flex items-center justify-between gap-3 hover:bg-slate-50/40 transition-colors">
+                        <div key={inv.id} onClick={() => setViewingInvoice(inv)} className="px-5 py-2.5 flex items-center justify-between gap-3 hover:bg-blue-50/30 cursor-pointer transition-colors">
                           <div className="min-w-0">
                             <p className="text-xs font-semibold text-slate-800 truncate">{inv.proveedor}</p>
                             <div className="flex items-center gap-2 mt-0.5">
@@ -548,6 +590,14 @@ export default function ControlPanel({ supabase }) {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Invoice detail modal */}
+      {viewingInvoice && (
+        <InvoiceDetailModal
+          invoice={viewingInvoice}
+          onClose={() => setViewingInvoice(null)}
+        />
       )}
 
       {/* Empty state */}
