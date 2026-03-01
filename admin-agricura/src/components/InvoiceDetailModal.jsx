@@ -8,7 +8,7 @@ const InvoiceDetailModal = ({ invoice, onClose, onEdit }) => {
   const todayStr = new Date().toISOString().split('T')[0];
 
   return (
-    <div className="fixed inset-0 z-[250] flex items-center justify-center bg-black/30 backdrop-blur-sm p-4 animate-in fade-in">
+    <div className="fixed inset-0 z-[400] flex items-center justify-center bg-black/30 backdrop-blur-sm p-4 animate-in fade-in">
       <div className="bg-white w-full max-w-2xl rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] border border-slate-200/60">
         <div className="bg-white border-b border-slate-100 p-5 lg:p-6 flex justify-between items-center shrink-0">
           <div className="flex items-center gap-3">

@@ -46,6 +46,23 @@ const SectionHeading = ({ color, title, badge }) => (
   </div>
 );
 
+const SortTh = ({ label, colKey, sort, onSort, right = false }) => {
+  const active = sort.key === colKey;
+  return (
+    <th
+      onClick={() => onSort(colKey)}
+      className={`px-5 py-3 ${right ? 'text-right' : 'text-left'} cursor-pointer select-none group`}
+    >
+      <span className={`inline-flex items-center gap-1 ${right ? 'flex-row-reverse' : ''} ${
+        active ? 'text-violet-600' : 'text-slate-400 group-hover:text-slate-600'
+      } transition-colors`}>
+        {label}
+        <span className="text-xs">{active ? (sort.dir === 'asc' ? '▲' : '▼') : <span className="opacity-0 group-hover:opacity-40">▼</span>}</span>
+      </span>
+    </th>
+  );
+};
+
 // ── Component ─────────────────────────────────────────────────────────────────
 export default function ControlPanel({ supabase }) {
   const [invoices,    setInvoices]    = useState([]);
@@ -56,6 +73,18 @@ export default function ControlPanel({ supabase }) {
   const [upcomingPage,  setUpcomingPage]  = useState(1);
   const [viewingInvoice, setViewingInvoice] = useState(null);
   const UPCOMING_PAGE_SIZE = 7;
+
+  const [siiTipoSort,  setSiiTipoSort]  = useState({ key: 'total', dir: 'desc' });
+  const [siiMonthSort, setSiiMonthSort] = useState({ key: 'mes',   dir: 'desc' });
+  const [siiMonthModal, setSiiMonthModal] = useState(null); // null | [mes, {neto,total,count,docs}]
+
+  const fmtSiiDate = (v) => {
+    if (!v) return '—';
+    return formatDate(String(v).replace(/\//g, '-'));
+  };
+
+  const handleTipoSort  = (k) => setSiiTipoSort(s  => ({ key: k, dir: s.key === k && s.dir === 'desc' ? 'asc' : 'desc' }));
+  const handleMonthSort = (k) => setSiiMonthSort(s => ({ key: k, dir: s.key === k && s.dir === 'desc' ? 'asc' : 'desc' }));
 
   useEffect(() => {
     const fetchAll = async (table, setter, setLoading) => {
@@ -162,11 +191,15 @@ export default function ControlPanel({ supabase }) {
     siiRecords.forEach(r => {
       const d = String(r.fecha_docto ?? '').slice(0, 7).replace('/', '-'); // "yyyy/mm" → "yyyy-mm"
       if (!d || d.length < 7) return;
-      if (!monthly[d]) monthly[d] = { neto: 0, total: 0, count: 0 };
+      if (!monthly[d]) monthly[d] = { neto: 0, total: 0, count: 0, docs: [] };
       monthly[d].neto  += Number(r.monto_neto  || 0);
       monthly[d].total += Number(r.monto_total || 0);
       monthly[d].count += 1;
+      monthly[d].docs.push(r);
     });
+    Object.values(monthly).forEach(m =>
+      m.docs.sort((a, b) => String(a.fecha_docto ?? '').localeCompare(String(b.fecha_docto ?? '')))
+    );
     const monthlyTop = Object.entries(monthly)
       .sort(([a], [b]) => b.localeCompare(a))
       .slice(0, 6)
@@ -176,6 +209,16 @@ export default function ControlPanel({ supabase }) {
   }, [siiRecords]);
 
   const loading = loadingInv || loadingSII;
+
+  // Map of "rut|folio" → invoice object from Agricura for SII cross-reference
+  const invoiceMap = useMemo(() => {
+    const m = new Map();
+    invoices.forEach(inv => {
+      if (inv.rut && inv.folio)
+        m.set(`${String(inv.rut).trim()}|${String(inv.folio).trim()}`, inv);
+    });
+    return m;
+  }, [invoices]);
 
   return (
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -442,17 +485,23 @@ export default function ControlPanel({ supabase }) {
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
-                  <thead className="bg-slate-50/60 text-xs text-slate-400 uppercase tracking-wider font-semibold">
+                  <thead className="bg-slate-50/60 text-xs uppercase tracking-wider font-semibold">
                     <tr>
-                      <th className="px-5 py-3 text-left">Tipo</th>
-                      <th className="px-5 py-3 text-right">Docs</th>
-                      <th className="px-5 py-3 text-right">Neto</th>
-                      <th className="px-5 py-3 text-right">Total</th>
+                      <SortTh label="Tipo"  colKey="tipo"  sort={siiTipoSort} onSort={handleTipoSort} />
+                      <SortTh label="Docs"  colKey="count" sort={siiTipoSort} onSort={handleTipoSort} right />
+                      <SortTh label="Neto"  colKey="neto"  sort={siiTipoSort} onSort={handleTipoSort} right />
+                      <SortTh label="Total" colKey="total" sort={siiTipoSort} onSort={handleTipoSort} right />
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {Object.entries(siiStats.byTipo)
-                      .sort(([, a], [, b]) => b.total - a.total)
+                      .sort(([ka, a], [kb, b]) => {
+                        const { key, dir } = siiTipoSort;
+                        let av = key === 'tipo' ? ka : a[key];
+                        let bv = key === 'tipo' ? kb : b[key];
+                        if (typeof av === 'string') return dir === 'asc' ? av.localeCompare(bv) : bv.localeCompare(av);
+                        return dir === 'asc' ? av - bv : bv - av;
+                      })
                       .map(([tipo, v]) => (
                         <tr key={tipo} className="hover:bg-slate-50/50 transition-colors">
                           <td className="px-5 py-3">
@@ -478,17 +527,25 @@ export default function ControlPanel({ supabase }) {
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
-                  <thead className="bg-slate-50/60 text-xs text-slate-400 uppercase tracking-wider font-semibold">
+                  <thead className="bg-slate-50/60 text-xs uppercase tracking-wider font-semibold">
                     <tr>
-                      <th className="px-5 py-3 text-left">Mes</th>
-                      <th className="px-5 py-3 text-right">Docs</th>
-                      <th className="px-5 py-3 text-right">Neto</th>
-                      <th className="px-5 py-3 text-right">Total</th>
+                      <SortTh label="Mes"   colKey="mes"   sort={siiMonthSort} onSort={handleMonthSort} />
+                      <SortTh label="Docs"  colKey="count" sort={siiMonthSort} onSort={handleMonthSort} right />
+                      <SortTh label="Neto"  colKey="neto"  sort={siiMonthSort} onSort={handleMonthSort} right />
+                      <SortTh label="Total" colKey="total" sort={siiMonthSort} onSort={handleMonthSort} right />
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
-                    {siiStats.monthlyTop.map(([mes, v]) => (
-                      <tr key={mes} className="hover:bg-slate-50/50 transition-colors">
+                    {[...siiStats.monthlyTop]
+                      .sort(([ma, va], [mb, vb]) => {
+                        const { key, dir } = siiMonthSort;
+                        let av = key === 'mes' ? ma : va[key];
+                        let bv = key === 'mes' ? mb : vb[key];
+                        if (typeof av === 'string') return dir === 'asc' ? av.localeCompare(bv) : bv.localeCompare(av);
+                        return dir === 'asc' ? av - bv : bv - av;
+                      })
+                      .map(([mes, v]) => (
+                      <tr key={mes} onClick={() => setSiiMonthModal([mes, v])} className="hover:bg-violet-50/30 cursor-pointer transition-colors">
                         <td className="px-5 py-3 font-medium text-slate-700 text-xs font-mono">{mes}</td>
                         <td className="px-5 py-3 text-right text-slate-500 font-medium text-xs">{v.count}</td>
                         <td className="px-5 py-3 text-right font-mono text-slate-600 text-xs">${formatCLP(v.neto)}</td>
@@ -502,6 +559,91 @@ export default function ControlPanel({ supabase }) {
           )}
         </div>
       </section>
+
+      {/* ── SII Monthly drill-down modal ───────────────────────────────── */}
+      {siiMonthModal && (() => {
+        const [mes, v] = siiMonthModal;
+        return (
+          <div
+            className="fixed inset-0 z-[300] flex items-center justify-center bg-black/30 backdrop-blur-sm p-4 animate-in fade-in"
+            onClick={() => setSiiMonthModal(null)}
+          >
+            <div
+              className="bg-white rounded-2xl shadow-2xl border border-slate-200/60 w-full max-w-4xl max-h-[85vh] flex flex-col overflow-hidden"
+              onClick={e => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between shrink-0">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 bg-violet-50 rounded-xl flex items-center justify-center">
+                    <BarChart3 size={17} className="text-violet-500" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-slate-900">Documentos SII — {mes}</h3>
+                    <p className="text-xs text-slate-400 font-medium mt-0.5">
+                      {v.count} documento{v.count !== 1 ? 's' : ''} · Total:&nbsp;
+                      <span className="font-semibold text-slate-600">${formatCLP(v.total)}</span>
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setSiiMonthModal(null)}
+                  className="p-2 bg-slate-50 hover:bg-slate-100 text-slate-400 rounded-lg transition-all active:scale-[0.97]"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+
+              {/* Table */}
+              <div className="overflow-auto flex-1 min-h-0">
+                <table className="w-full text-sm">
+                  <thead className="bg-slate-50/80 text-xs text-slate-400 uppercase tracking-wider font-semibold sticky top-0">
+                    <tr>
+                      <th className="px-5 py-3 text-center">Agricura</th>
+                      <th className="px-5 py-3 text-left">Folio</th>
+                      <th className="px-5 py-3 text-left">RUT Proveedor</th>
+                      <th className="px-5 py-3 text-left">Razón Social</th>
+                      <th className="px-5 py-3 text-left">Fecha Docto.</th>
+                      <th className="px-5 py-3 text-right">Monto Total</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {v.docs.map((r, idx) => {
+                      const matchKey = `${String(r.rut_proveedor || '').trim()}|${String(r.folio || '').trim()}`;
+                      const matchedInv = invoiceMap.get(matchKey);
+                      return (
+                        <tr key={r.id ?? idx} className="hover:bg-slate-50/50 transition-colors">
+                          <td className="px-5 py-3 text-center">
+                            {matchedInv
+                              ? <span
+                                  onClick={() => setViewingInvoice(matchedInv)}
+                                  className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 text-xs px-2 py-0.5 rounded-lg border border-emerald-200 font-semibold cursor-pointer hover:bg-emerald-100 hover:border-emerald-300 transition-colors"
+                                  title="Ver detalles en Agricura"
+                                ><CheckCircle size={11} /> Sí</span>
+                              : <span className="text-slate-300 text-xs font-medium">—</span>
+                            }
+                          </td>
+                          <td className="px-5 py-3 font-mono text-xs text-slate-600">{r.folio || '—'}</td>
+                          <td className="px-5 py-3 font-mono text-xs text-slate-600 whitespace-nowrap">{r.rut_proveedor || '—'}</td>
+                          <td className="px-5 py-3 text-xs text-slate-800 font-medium max-w-[180px] truncate">{r.razon_social || '—'}</td>
+                          <td className="px-5 py-3 font-mono text-xs text-slate-600 whitespace-nowrap">{fmtSiiDate(r.fecha_docto)}</td>
+                          <td className="px-5 py-3 text-right font-mono font-bold text-xs text-violet-700">${formatCLP(r.monto_total)}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Footer */}
+              <div className="px-6 py-4 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between shrink-0">
+                <span className="text-xs text-slate-400 font-medium">{v.count} registro{v.count !== 1 ? 's' : ''}</span>
+                <span className="font-mono font-bold text-sm text-slate-800">${formatCLP(v.total)}</span>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* ── Weekly bucket modal ───────────────────────────────────────────── */}
       {weeklyModal && (
