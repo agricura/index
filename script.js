@@ -157,7 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
             navPotential: "Negocios",
             navContact: "Contacto",
             navAssets: "Activos",
-            heroTitle: "Cerezas para el Mundo",
+            heroTitle: "Cerezas para el Mundo!",
             heroSubtitle: "Cultivando excelencia en Rengo, Chile desde 1988.",
             heroCta: "Descubre Nuestros Productos",
             aboutTitle: "Nuestra Historia",
