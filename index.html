@@ -57,7 +57,15 @@
                 <p data-lang-key="heroSubtitle">Cultivando excelencia en Rengo, Chile desde 1988.</p>
                 <a href="#products" class="btn btn-primary" data-lang-key="heroCta">Descubre Nuestros Productos</a>
             </div>
+            <div class="hero-scroll-down" id="hero-scroll-btn" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </div>
         </section>
+        <div class="wave-divider-hero" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 65" preserveAspectRatio="none">
+                <path fill="#F8F9FA" d="M0,32 C360,65 1080,0 1440,32 L1440,65 L0,65 Z"/>
+            </svg>
+        </div>
 
         <section id="about" class="section-padding">
             <div class="container">
@@ -129,6 +137,23 @@
                 <div class="grid-2-cols gap-responsive items-center">
                     <div data-aos="fade-right" data-aos-delay="100">
                         <p class="mb-6 text-lg" data-lang-key="potentialIntro">Agricura presenta una oportunidad atractiva para compradores de cerezas, inversionistas y socios financieros. Nuestra ubicación estratégica y experiencia nos posicionan para el crecimiento.</p>
+                        <div class="stat-cards" data-aos="fade-up" data-aos-delay="50">
+                            <div class="stat-card">
+                                <div class="stat-icon"><svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></div>
+                                <div class="stat-number">35+</div>
+                                <div class="stat-label" data-lang-key="statYears">Años de Experiencia</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon"><svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg></div>
+                                <div class="stat-number">10+</div>
+                                <div class="stat-label" data-lang-key="statMarkets">Mercados de Exportación</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon"><svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8C8 10 5.9 16.17 3.82 19.73A2 2 0 0 0 5.5 22.5c4.11-.56 7.03-3.56 8.5-7.5 1.04 2.65 2.01 4.5 5 4.5 2.87 0 5-2.76 5-6 0-4.44-3-8-7-8z"></path></svg></div>
+                                <div class="stat-number">100%</div>
+                                <div class="stat-label" data-lang-key="statSustainable">Compromiso Sostenible</div>
+                            </div>
+                        </div>
                         <ul class="list-disc list-inside space-y-2 mb-8">
                             <li data-lang-key="potentialPoint1">Variedades de cerezas premium de alta demanda.</li>
                             <li data-lang-key="potentialPoint2">Canales de exportación y experiencia establecidos.</li>
@@ -201,13 +226,21 @@
     </main>
 
     <footer class="main-footer bg-dark text-light">
-        <div class="container text-center">
-            <p>© <span id="currentYear"></span> <span data-lang-key="companyNameFooter">Agricura</span>. <span data-lang-key="footerRights">Todos los derechos reservados.</span></p>
-            <p data-lang-key="footerAddress">Rengo, Chile</p>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <img src="assets/homepage/agricura-logo-h.png" alt="Agricura" class="footer-logo" onerror="this.style.display='none'">
+                    <p class="footer-tagline" data-lang-key="footerTagline">Cosechando Futuro desde 1988</p>
+                </div>
+                <div class="footer-meta">
+                    <p>© <span id="currentYear"></span> <span data-lang-key="companyNameFooter">Agricura</span>. <span data-lang-key="footerRights">Todos los derechos reservados.</span></p>
+                    <p data-lang-key="footerAddress">Rengo, Chile</p>
+                </div>
+            </div>
         </div>
     </footer>
 
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <script src="script.js"></script>
+    <script type="module" src="script.js"></script>
 </body>
 </html>

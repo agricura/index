@@ -1,0 +1,12 @@
+# ─── Main site (root) ────────────────────────────────────────────────
+[build]
+  command   = "npm run build"
+  publish   = "dist"
+  ignore    = "admin-agricura/**"   # don't re-deploy main site when only admin changes
+
+# Multi-page: each HTML file is its own route — no SPA catch-all needed.
+# 404 fallback
+[[redirects]]
+  from   = "/*"
+  to     = "/index.html"
+  status = 404

@@ -143,6 +143,10 @@ document.addEventListener('DOMContentLoaded', () => {
             pageTitleCerezas: "Quality Cherries - Agricura", // New Key
             galleryTitleCerezas: "Our Cherries", // New Key
             galleryDescCerezas: "Explore the quality and beauty of our export-grade cherries." // New Key
+            ,footerTagline: "Growing the Future since 1988",
+            statYears: "Years of Experience",
+            statMarkets: "Export Markets",
+            statSustainable: "Sustainable Commitment"
         },
         es: {
             companyName: "Agricura",
@@ -204,6 +208,10 @@ document.addEventListener('DOMContentLoaded', () => {
             pageTitleCerezas: "Cerezas de Calidad - Agricura", // New Key
             galleryTitleCerezas: "Nuestras Cerezas", // New Key
             galleryDescCerezas: "Explora la calidad y belleza de nuestras cerezas de exportación." // New Key
+            ,footerTagline: "Cosechando Futuro desde 1988",
+            statYears: "Años de Experiencia",
+            statMarkets: "Mercados de Exportación",
+            statSustainable: "Compromiso Sostenible"
         }
     };
 
@@ -477,6 +485,44 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (error) {
         console.error('Error setting up contact form:', error);
     }
+
+    // --- Hero scroll-down button ---
+    try {
+        const heroScrollBtn = document.getElementById('hero-scroll-btn');
+        if (heroScrollBtn) {
+            heroScrollBtn.addEventListener('click', () => {
+                const about = document.getElementById('about');
+                const hdr = document.querySelector('.main-header');
+                if (about) {
+                    window.scrollTo({
+                        top: about.getBoundingClientRect().top + window.scrollY - (hdr?.offsetHeight || 70),
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        }
+    } catch (e) { console.error('Hero scroll btn error:', e); }
+
+    // --- Active nav link on scroll (IntersectionObserver) ---
+    try {
+        const navSections = document.querySelectorAll('main > section[id]');
+        if (navSections.length > 0) {
+            const navObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const id = entry.target.getAttribute('id');
+                        document.querySelectorAll('.nav-links a, .mobile-nav-links a').forEach(link => {
+                            link.classList.remove('scroll-active');
+                            if (link.getAttribute('href') === `#${id}`) {
+                                link.classList.add('scroll-active');
+                            }
+                        });
+                    }
+                });
+            }, { rootMargin: '-25% 0px -65% 0px', threshold: 0 });
+            navSections.forEach(s => navObserver.observe(s));
+        }
+    } catch (e) { console.error('IntersectionObserver error:', e); }
 
     console.log('All scripts in DOMContentLoaded executed.');
 });
