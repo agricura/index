@@ -1,7 +1,9 @@
+// c:\Users\curam\index\admin-agricura\src\views\DataManagement.jsx
 import React, { useState, useEffect } from 'react';
-import { Upload, Plus, FileSpreadsheet, FileText, X, ChevronRight, Database, CheckCircle2 } from 'lucide-react';
+import { Upload, Plus, FileSpreadsheet, FileText, X, ChevronRight, Database, CheckCircle2, Landmark } from 'lucide-react';
 import ExcelImportModal from '../components/ExcelImportModal';
 import SIIImportModal from '../components/SIIImportModal';
+import { loadScript } from '../lib/supabase';
 
 export default function DataManagement({ supabase, onNewDocument, onShowConfirm, onNavigateToPanel }) {
   const [showChooser, setShowChooser] = useState(false);
@@ -33,6 +35,43 @@ export default function DataManagement({ supabase, onNewDocument, onShowConfirm,
 
   const handleSelectAgricura = () => { closeChooser(); setShowAgricuraImport(true); };
   const handleSelectSII      = () => { closeChooser(); setShowSIIImport(true); };
+
+  const handleConnectFintoc = async () => {
+    closeChooser();
+    try {
+      await loadScript('https://js.fintoc.com/v1/');
+      
+      if (!window.Fintoc) throw new Error('Fintoc SDK no cargó correctamente');
+
+      const widget = window.Fintoc.create({
+        publicKey: import.meta.env.VITE_FINTOC_PUBLIC_KEY,
+        holderType: 'individual',
+        product: 'movements',
+        webhookUrl: '', // Opcional
+        onSuccess: async (publicToken) => {
+          // Enviar public_token a tu servidor NodeJS
+          try {
+            const response = await fetch('http://localhost:3001/api/fintoc/exchange', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ public_token: publicToken }),
+            });
+            
+            if (!response.ok) throw new Error('Error al vincular cuenta en el servidor');
+            
+            handleImported('Banco Santander (Fintoc)');
+          } catch (err) {
+            onShowConfirm({ title: 'Error de Vinculación', message: err.message, type: 'danger', onConfirm: () => {} });
+          }
+        },
+        onExit: () => { console.log('Widget cerrado'); },
+      });
+
+      widget.open();
+    } catch (err) {
+      onShowConfirm({ title: 'Error', message: 'No se pudo iniciar el widget de Fintoc.', type: 'danger', onConfirm: () => {} });
+    }
+  };
 
   const handleImported = (type) => {
     setSuccessType(type);
@@ -141,6 +180,20 @@ export default function DataManagement({ supabase, onNewDocument, onShowConfirm,
                   <p className="text-xs text-slate-400 mt-0.5">Carga el libro de compras exportado desde el SII.</p>
                 </div>
                 <ChevronRight size={16} className="text-slate-300 group-hover:text-violet-500 ml-auto shrink-0 transition-colors" />
+              </button>
+
+              <button
+                onClick={handleConnectFintoc}
+                className="w-full flex items-center gap-4 p-4 rounded-xl border border-slate-200 hover:border-rose-300 hover:bg-rose-50/40 transition-all duration-150 active:scale-[0.99] text-left group"
+              >
+                <div className="w-10 h-10 bg-rose-50 rounded-lg flex items-center justify-center shrink-0 group-hover:bg-rose-100 transition-colors">
+                  <Landmark size={20} className="text-rose-600" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-slate-800">Conectar Banco (Fintoc)</p>
+                  <p className="text-xs text-slate-400 mt-0.5">Vincula Santander para extraer movimientos.</p>
+                </div>
+                <ChevronRight size={16} className="text-slate-300 group-hover:text-rose-500 ml-auto shrink-0 transition-colors" />
               </button>
             </div>
           </div>

@@ -1,5 +1,5 @@
 ﻿import React, { useState, useEffect } from 'react';
-import { LayoutDashboard, Menu, X, LogOut, FileText, Database, BarChart3 } from 'lucide-react';
+import { LayoutDashboard, Menu, X, LogOut, FileText, Database, BarChart3, Landmark } from 'lucide-react';
 import { loadScript, supabaseUrl, supabaseAnonKey } from './lib/supabase';
 import Auth from './views/Auth';
 import Dashboard from './views/Dashboard';
@@ -9,6 +9,7 @@ import ConfirmModal from './components/ConfirmModal';
 import InvoiceDetailModal from './components/InvoiceDetailModal';
 import DataManagement from './views/DataManagement';
 import ControlPanel from './views/ControlPanel';
+import BankView from './views/BankView';
 
 export default function App() {
   const [supabaseClient, setSupabaseClient] = useState(null);
@@ -120,6 +121,16 @@ export default function App() {
             </button>
           </div>
 
+          <div className="px-1 pb-1 mt-2">
+            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5 px-2.5">Banco</p>
+            <button
+              onClick={() => { setCurrentView('bank'); setIsSidebarOpen(false); }}
+              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg transition-all duration-200 text-sm font-medium ${currentView === 'bank' ? 'bg-emerald-600 shadow-md shadow-emerald-600/20 text-white' : 'text-slate-400 hover:bg-white/5 hover:text-white'}`}
+            >
+              <Landmark size={18} /><span>Datos Bancarios</span>
+            </button>
+          </div>
+
         </nav>
 
         <div className="p-4 bg-slate-950/50 border-t border-white/5 flex flex-col gap-3 shrink-0">
@@ -180,6 +191,9 @@ export default function App() {
               onShowConfirm={(cfg) => setConfirmModal({ ...cfg, isOpen: true })}
               onViewDetail={(inv) => setViewingInvoice(inv)}
             />
+          )}
+          {currentView === 'bank' && (
+            <BankView />
           )}
         </div>
 
